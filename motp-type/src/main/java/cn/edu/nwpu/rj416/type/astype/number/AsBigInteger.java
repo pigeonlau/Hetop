@@ -1,7 +1,8 @@
 package cn.edu.nwpu.rj416.type.astype.number;
 
 
-import util.astype.AsInteger;
+
+import cn.edu.nwpu.rj416.util.astype.AsInteger;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
