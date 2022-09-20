@@ -22,7 +22,7 @@ public class MByteBuffer { //32位系统，页表一页大小为4kB
             length *= 2;
         }
         buffer = new byte[length];
-        size = length;
+        size = len;
         System.arraycopy(bytes, 0, buffer, 0, len);
     }
 
