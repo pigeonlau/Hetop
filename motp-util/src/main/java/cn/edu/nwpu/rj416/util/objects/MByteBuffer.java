@@ -104,6 +104,10 @@ public class MByteBuffer { //32位系统，页表一页大小为4kB
         return bytes;
     }
 
+    public byte[] getRawBuffer() {
+        return buffer;
+    }
+
     //在缓冲区中附加一个字节码
     public int appendByte(byte v) {
         this.extendIfNessary(1);
