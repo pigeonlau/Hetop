@@ -1,7 +1,7 @@
 package motp.serializer.test.beans;
 
 
-import cn.edu.nwpu.rj416.motp.serializer.motp.MacawMotpSerializer;
+import cn.edu.nwpu.rj416.motp.serializer.motp.MotpSerializer;
 import cn.edu.nwpu.rj416.motp.serializer.motp.builder.MotpBuilder;
 import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
 import cn.edu.nwpu.rj416.type.FormatUtil;
@@ -10,7 +10,7 @@ import cn.edu.nwpu.rj416.type.random.RandomObjectUtil;
 public class TestMotpBuilder {
 	public static void main(String[] args) {
 		TestView view = RandomObjectUtil.randomObject(TestView.class);
-		MacawMotpSerializer motpSerializer = MacawMotpSerializer.getInstance();
+		MotpSerializer motpSerializer = MotpSerializer.getInstance();
 
 		MotpBuilder builder = new MotpBuilder();
 		byte[] bytes = builder.getBytes(view);

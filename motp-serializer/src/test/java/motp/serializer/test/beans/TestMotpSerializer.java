@@ -1,8 +1,8 @@
 package motp.serializer.test.beans;
 
 
-import cn.edu.nwpu.rj416.motp.serializer.json.MacawJsonSerializer;
-import cn.edu.nwpu.rj416.motp.serializer.motp.MacawMotpSerializer;
+import cn.edu.nwpu.rj416.motp.serializer.json.MotpJsonSerializer;
+import cn.edu.nwpu.rj416.motp.serializer.motp.MotpSerializer;
 import cn.edu.nwpu.rj416.type.FormatUtil;
 import cn.edu.nwpu.rj416.type.random.MRandom;
 import cn.edu.nwpu.rj416.type.random.RandomObjectUtil;
@@ -258,9 +258,9 @@ public class TestMotpSerializer {
         String ori = FormatUtil.toString(
                 FormatUtil.format(view, 0), "    ", "\r\n");
 
-        MacawMotpSerializer motpSerializer = MacawMotpSerializer.getInstance();
+        MotpSerializer motpSerializer = MotpSerializer.getInstance();
 
-        MacawJsonSerializer jsonSerializer = MacawJsonSerializer.getInstance();
+        MotpJsonSerializer jsonSerializer = MotpJsonSerializer.getInstance();
 
         Stopwatch sw = new Stopwatch();
         totalCase++;
@@ -453,7 +453,7 @@ public class TestMotpSerializer {
 
     private static void testPrimitive() {
         MRandom mr = new MRandom();
-        MacawMotpSerializer motpSerializer = MacawMotpSerializer.getInstance();
+        MotpSerializer motpSerializer = MotpSerializer.getInstance();
         byte[] buffer = null;
 
         byte byte1 = mr.nextByte();
@@ -518,7 +518,7 @@ public class TestMotpSerializer {
 
     private static void testBigDecimal() {
         MRandom mr = new MRandom();
-        MacawMotpSerializer motpSerializer = MacawMotpSerializer.getInstance();
+        MotpSerializer motpSerializer = MotpSerializer.getInstance();
         BigDecimal bd1 = mr.nextBigDecimal();
         byte[] buffer = motpSerializer.serialize(bd1);
         BigDecimal bd2 = (BigDecimal) motpSerializer.deserialize(buffer, BigDecimal.class);
@@ -531,7 +531,7 @@ public class TestMotpSerializer {
 
     private static void testDate() {
         MRandom mr = new MRandom();
-        MacawMotpSerializer motpSerializer = MacawMotpSerializer.getInstance();
+        MotpSerializer motpSerializer = MotpSerializer.getInstance();
         Date bd1 = mr.nextDate();
         byte[] buffer = motpSerializer.serialize(bd1);
         Date bd2 = (Date) motpSerializer.deserialize(buffer, Date.class);

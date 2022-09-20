@@ -118,7 +118,6 @@ public class RandomObjectUtil {
 	//根据Class对象生成与之对应的随机实例对象
 	private static <T> T createValueByClass(MRandom r, Class<T> clazz) {
 		Object value = null;
-        System.out.println("反序列化；");
 		if (TypeUtil.equals(clazz, Object.class)) { //传参对象为Object类
 			@SuppressWarnings("unchecked")
 			T objValue = (T)String.format("RandomObject%d", r.nextInt(10000));//强制向上转型一个随机字符串
@@ -169,7 +168,6 @@ public class RandomObjectUtil {
 		} else if (clazz == BigInteger.class) { //传参对象为大整数类
 			value = r.nextBigInteger(); //返回随机大整数
 		} else {
-            System.out.println("序列化");
 			value = ObjectUtil.createObjectByClass(clazz); //传参对象为自定义类，递归调用为其赋值
 			if (value != null) {
 				setObjectValue(r, value);

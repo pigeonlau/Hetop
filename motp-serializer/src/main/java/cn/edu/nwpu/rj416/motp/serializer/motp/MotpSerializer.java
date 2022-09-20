@@ -12,14 +12,14 @@ import java.lang.reflect.Type;
  * 2019年10月28日 下午2:56:07
  */
 
-public class MacawMotpSerializer {
+public class MotpSerializer {
 
-    private MacawMotpSerializer() {
+    private MotpSerializer() {
     }
 
-    private static final MacawMotpSerializer INSTANCE = new MacawMotpSerializer();
+    private static final MotpSerializer INSTANCE = new MotpSerializer();
 
-    public static MacawMotpSerializer getInstance() {
+    public static MotpSerializer getInstance() {
         return INSTANCE;
     }
 

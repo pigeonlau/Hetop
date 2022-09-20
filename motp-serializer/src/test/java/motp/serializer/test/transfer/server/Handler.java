@@ -1,7 +1,7 @@
 package motp.serializer.test.transfer.server;
 
 
-import cn.edu.nwpu.rj416.motp.serializer.motp.MacawMotpSerializer;
+import cn.edu.nwpu.rj416.motp.serializer.motp.MotpSerializer;
 import cn.edu.nwpu.rj416.type.random.RandomObjectUtil;
 import motp.serializer.test.beans.Game.*;
 import motp.serializer.test.beans.TestBean;
@@ -70,7 +70,7 @@ public class Handler implements Runnable {
         System.err.println(view.getClass());
         System.err.println(view);
        // MMotpSerializer motpSerializer = Macaw.getBean(MacawMotpSerializer.class);
-        MacawMotpSerializer motpSerializer=MacawMotpSerializer.getInstance();
+        MotpSerializer motpSerializer= MotpSerializer.getInstance();
         byte[] motpBytes = motpSerializer.serialize(view);
         return motpBytes;
     }

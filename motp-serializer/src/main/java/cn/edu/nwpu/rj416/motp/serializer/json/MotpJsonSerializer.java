@@ -18,11 +18,11 @@ import java.util.HashMap;
 import java.util.TimeZone;
 
 
-public class MacawJsonSerializer {
+public class MotpJsonSerializer {
 
-    private static final MacawJsonSerializer INSTANCE = new MacawJsonSerializer();
+    private static final MotpJsonSerializer INSTANCE = new MotpJsonSerializer();
 
-    public static MacawJsonSerializer getInstance() {
+    public static MotpJsonSerializer getInstance() {
         return INSTANCE;
     }
 

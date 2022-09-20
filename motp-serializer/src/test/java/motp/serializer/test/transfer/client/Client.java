@@ -5,7 +5,7 @@ package motp.serializer.test.transfer.client;
  */
 
 
-import cn.edu.nwpu.rj416.motp.serializer.motp.MacawMotpSerializer;
+import cn.edu.nwpu.rj416.motp.serializer.motp.MotpSerializer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class Client {
             DatagramPacket dp = new DatagramPacket(new byte[512], 512);
             dataSocket.receive(dp);
             //MMotpSerializer motpSerializer = Macaw.getBean(MacawMotpSerializer.class);
-            MacawMotpSerializer motpSerializer = MacawMotpSerializer.getInstance();
+            MotpSerializer motpSerializer = MotpSerializer.getInstance();
             byte[] bytes = dp.getData();
             T loadView = (T) motpSerializer.deserialize(bytes);
             System.err.println(loadView.getClass());
