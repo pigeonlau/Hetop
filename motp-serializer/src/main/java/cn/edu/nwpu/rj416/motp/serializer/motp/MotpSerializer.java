@@ -26,8 +26,7 @@ public class MotpSerializer {
 
     public byte[] serialize(Object o) throws MSerializeException {
         MotpBuilder builder = new MotpBuilder();
-        byte[] bytes = builder.getBytes(o);
-        return bytes;
+        return builder.getBytes(o);
     }
 
 

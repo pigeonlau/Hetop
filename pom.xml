@@ -6,7 +6,7 @@
 
     <groupId>cn.edu.nwpu.rj416</groupId>
     <artifactId>motp</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <modules>
         <module>motp-reflectasm</module>
         <module>motp-util</module>

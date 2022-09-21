@@ -2,6 +2,7 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.builder;
 
 
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpType;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
 import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
 import cn.edu.nwpu.rj416.motp.serializer.motp.util.MTempFileUtil;
 import cn.edu.nwpu.rj416.motp.serializer.motp.util.MotpProcesserMapping;
@@ -13,16 +14,15 @@ import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MotpBuilder {
     private static final byte[] VOID_BYTES = {0, 0};
 
     private MotpBuilderSchema schema;
     private MByteBuffer dataBuffer;
+
+    private static Map<Class<?>, MotpSchema> schemaCache = new HashMap<>();
 
     public byte[] getBytes(Object o) {
         if (o == null) {
@@ -209,10 +209,18 @@ public class MotpBuilder {
         Class<?> clazz = o.getClass();
 
         MotpBuilderObjectSchema objectSchema = this.schema.getObjectSchemaByClass(clazz);
-        if (objectSchema == null) {
+        MotpBuilderObjectSchema cache = (MotpBuilderObjectSchema) schemaCache.get(clazz);
+
+        if (cache == null && objectSchema == null) {
             objectSchema = this.schema.appendClass(clazz);
+            schemaCache.put(clazz, objectSchema);
+        } else if (objectSchema == null) {
+            objectSchema = (MotpBuilderObjectSchema) schema.appendMotpSchema(clazz, cache);
+        } else {
+            schemaCache.put(clazz, objectSchema);
         }
-        //i do
+
+
         dataBuffer.appendByte(MotpType.OBJECT);
         dataBuffer.appendMVLInt(objectSchema.getNumber());
 
@@ -227,7 +235,6 @@ public class MotpBuilder {
 
             MotpBuilderObjectSchemaColumn column = objectSchema.getColumnByName(f.getName());
             if (column == null) {
-                //这个是不可能发生的，但是谁知道呢
                 continue;
             }
 

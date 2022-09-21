@@ -60,6 +60,14 @@ public class MotpBuilderSchema {
         return schema;
     }
 
+    public MotpSchema appendMotpSchema(Class<?> clazz, MotpSchema schema) {
+
+        schema.setNumber(numberIndex++);
+        schemas.put(clazz, schema);
+
+        return schema;
+    }
+
     public MotpSchema getByClass(Class<?> clazz) {
         return this.schemas.get(clazz);
     }
