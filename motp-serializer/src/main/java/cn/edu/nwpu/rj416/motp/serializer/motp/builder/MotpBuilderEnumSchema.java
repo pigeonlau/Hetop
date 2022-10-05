@@ -3,7 +3,6 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.builder;
 
 
 import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
-import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
 import cn.edu.nwpu.rj416.util.objects.MVLInt;
 import cn.edu.nwpu.rj416.util.types.StringUtil;
 

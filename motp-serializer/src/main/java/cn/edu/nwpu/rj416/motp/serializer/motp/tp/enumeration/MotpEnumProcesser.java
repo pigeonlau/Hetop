@@ -4,6 +4,7 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.tp.enumeration;
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpType;
 import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
+import cn.edu.nwpu.rj416.util.objects.MLinkedBuffer;
 
 public class MotpEnumProcesser implements MotpTypeProcesser {
 
@@ -13,13 +14,13 @@ public class MotpEnumProcesser implements MotpTypeProcesser {
 	}
 	
 	@Override
-	public int writeValue(MByteBuffer byteBuffer, Object o) {
+	public void writeValue(MLinkedBuffer byteBuffer, Object o) {
 		Boolean b = (Boolean)o;
 		byte v = 0;
 		if (b != null && b) {
 			v = 1;
 		}
-		return byteBuffer.appendByte(v);
+		byteBuffer.appendByte(v);
 	}
 
 	@Override

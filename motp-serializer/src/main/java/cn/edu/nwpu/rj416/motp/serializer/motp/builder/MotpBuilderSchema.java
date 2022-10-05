@@ -3,7 +3,7 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.builder;
 
 import cn.edu.nwpu.rj416.motp.reflectasm.FieldAccess;
 import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
-import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
+import cn.edu.nwpu.rj416.util.objects.MLinkedBuffer;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -91,7 +91,7 @@ public class MotpBuilderSchema {
     }
 
     public byte[] getBytes() {
-        MByteBuffer buffer = new MByteBuffer();
+        MLinkedBuffer buffer = new MLinkedBuffer();
         List<MotpSchema> list = new ArrayList<>();
         list.addAll(this.schemas.values());
         list.sort(new Comparator<MotpSchema>() {
@@ -113,8 +113,8 @@ public class MotpBuilderSchema {
         return buffer.getBytes();
     }
 
-    public MByteBuffer getByteBuffer() {
-        MByteBuffer buffer = new MByteBuffer();
+    public MLinkedBuffer getByteBuffer() {
+        MLinkedBuffer buffer = new MLinkedBuffer();
         List<MotpSchema> list = new ArrayList<>();
         list.addAll(this.schemas.values());
         list.sort(new Comparator<MotpSchema>() {

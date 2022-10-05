@@ -6,7 +6,7 @@ import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
 import cn.edu.nwpu.rj416.motp.serializer.motp.util.MTempFileUtil;
 import cn.edu.nwpu.rj416.motp.serializer.motp.util.MotpProcesserMapping;
 import cn.edu.nwpu.rj416.util.astype.AsType;
-import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
+import cn.edu.nwpu.rj416.util.objects.MLinkedBuffer;
 import cn.edu.nwpu.rj416.util.objects.MVLInt;
 
 import java.io.File;
@@ -22,7 +22,7 @@ public class MotpBuilder {
     private static final byte[] VOID_BYTES = {0, 0};
 
     private MotpBuilderSchema schema;
-    private MByteBuffer dataBuffer;
+    private MLinkedBuffer dataBuffer;
 
     public byte[] getBytes(Object o) {
         if (o == null) {
@@ -31,7 +31,7 @@ public class MotpBuilder {
 
         //初始化
         this.schema = new MotpBuilderSchema();
-        this.dataBuffer = new MByteBuffer();
+        this.dataBuffer = new MLinkedBuffer();
 
         //生成序列化数据
         try {
@@ -52,28 +52,32 @@ public class MotpBuilder {
 //        rst.appendMVLInt(dataBytes.length);
 //        rst.appendBytes(dataBytes);
 
-        return combineRes(schema.getByteBuffer(), dataBuffer);
+
+//        return combineRes(schema.getByteBuffer(), dataBuffer);
+
+        return schema.getByteBuffer().appendMLinkedBuffer(dataBuffer).getBytes();
+
     }
 
-    private byte[] combineRes(MByteBuffer schemaByteBuffer, MByteBuffer dataBuffer) {
-        MVLInt schemaByteBufferLength = new MVLInt(schemaByteBuffer.getSize());
-        MVLInt dataBufferLength = new MVLInt(dataBuffer.getSize());
-
-        int resLength = schemaByteBufferLength.getLen() + schemaByteBuffer.getSize()
-                + dataBufferLength.getLen() + dataBuffer.getSize();
-
-        byte[] res = new byte[resLength];
-        int offset = 0;
-        System.arraycopy(schemaByteBufferLength.getBytes(), 0, res, offset, schemaByteBufferLength.getLen());
-        offset += schemaByteBufferLength.getLen();
-        System.arraycopy(schemaByteBuffer.getRawBuffer(), 0, res, offset, schemaByteBuffer.getSize());
-        offset += schemaByteBuffer.getSize();
-        System.arraycopy(dataBufferLength.getBytes(), 0, res, offset, dataBufferLength.getLen());
-        offset += dataBufferLength.getLen();
-        System.arraycopy(dataBuffer.getRawBuffer(), 0, res, offset, dataBuffer.getSize());
-
-        return res;
-    }
+//    private byte[] combineRes(MByteBuffer schemaByteBuffer, MByteBuffer dataBuffer) {
+//        MVLInt schemaByteBufferLength = new MVLInt(schemaByteBuffer.getSize());
+//        MVLInt dataBufferLength = new MVLInt(dataBuffer.getSize());
+//
+//        int resLength = schemaByteBufferLength.getLen() + schemaByteBuffer.getSize()
+//                + dataBufferLength.getLen() + dataBuffer.getSize();
+//
+//        byte[] res = new byte[resLength];
+//        int offset = 0;
+//        System.arraycopy(schemaByteBufferLength.getBytes(), 0, res, offset, schemaByteBufferLength.getLen());
+//        offset += schemaByteBufferLength.getLen();
+//        System.arraycopy(schemaByteBuffer.getRawBuffer(), 0, res, offset, schemaByteBuffer.getSize());
+//        offset += schemaByteBuffer.getSize();
+//        System.arraycopy(dataBufferLength.getBytes(), 0, res, offset, dataBufferLength.getLen());
+//        offset += dataBufferLength.getLen();
+//        System.arraycopy(dataBuffer.getRawBuffer(), 0, res, offset, dataBuffer.getSize());
+//
+//        return res;
+//    }
 
 
     /**
@@ -83,7 +87,7 @@ public class MotpBuilder {
      * @param clazz  序列化参照的类型，不能为null
      * @throws Exception
      */
-    private void appendData(MByteBuffer dataBuffer, Object object) throws Exception {
+    private void appendData(MLinkedBuffer dataBuffer, Object object) throws Exception {
         if (object == null) {
             dataBuffer.appendByte(MotpType.VOID);
             return;
@@ -163,7 +167,7 @@ public class MotpBuilder {
         this.buildNormalObject(dataBuffer, object);
     }
 
-    private void appendList(MByteBuffer dataBuffer, List<?> list) throws Exception {
+    private void appendList(MLinkedBuffer dataBuffer, List<?> list) throws Exception {
         dataBuffer.appendByte(MotpType.LIST);
         dataBuffer.appendMVLInt(list.size());
         for (Object ele : list) {
@@ -171,7 +175,7 @@ public class MotpBuilder {
         }
     }
 
-    private void appendMap(MByteBuffer dataBuffer, Map<?, ?> map) throws Exception {
+    private void appendMap(MLinkedBuffer dataBuffer, Map<?, ?> map) throws Exception {
         dataBuffer.appendByte(MotpType.MAP);
         dataBuffer.appendMVLInt(map.size());
         for (Map.Entry<?, ?> entry : map.entrySet()) {
@@ -180,7 +184,7 @@ public class MotpBuilder {
         }
     }
 
-    private void appendSet(MByteBuffer dataBuffer, Set<?> set) throws Exception {
+    private void appendSet(MLinkedBuffer dataBuffer, Set<?> set) throws Exception {
         dataBuffer.appendByte(MotpType.SET);
         dataBuffer.appendMVLInt(set.size());
         for (Object ele : set) {
@@ -188,7 +192,7 @@ public class MotpBuilder {
         }
     }
 
-    private void appendFile(MByteBuffer dataBuffer, File file) throws Exception {
+    private void appendFile(MLinkedBuffer dataBuffer, File file) throws Exception {
         dataBuffer.appendByte(MotpType.FILE);
 
         String fileName = file.getName();
@@ -205,7 +209,7 @@ public class MotpBuilder {
         }
     }
 
-    private void buildNormalObject(MByteBuffer dataBuffer, Object o) throws Exception, IllegalAccessException {
+    private void buildNormalObject(MLinkedBuffer dataBuffer, Object o) throws Exception, IllegalAccessException {
         Class<?> clazz = o.getClass();
 
         MotpBuilderObjectSchema objectSchema = this.schema.getObjectSchemaByClass(clazz);
@@ -216,7 +220,7 @@ public class MotpBuilder {
         dataBuffer.appendByte(MotpType.OBJECT);
         dataBuffer.appendMVLInt(objectSchema.getNumber());
 
-        MByteBuffer objectContent = new MByteBuffer();
+        MLinkedBuffer objectContent = new MLinkedBuffer();
         for (Field f : objectSchema.getFields()) {//反射
             f.setAccessible(true);//暴力反射，
             Object fieldValue = f.get(o);
@@ -249,7 +253,7 @@ public class MotpBuilder {
     }
 
 
-    public MByteBuffer getDataBuffer() {
+    public MLinkedBuffer getDataBuffer() {
         return dataBuffer;
     }
 

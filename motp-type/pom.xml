@@ -5,13 +5,13 @@
     <parent>
         <artifactId>motp</artifactId>
         <groupId>cn.edu.nwpu.rj416</groupId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>motp-type</artifactId>
 
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1.2-SNAPSHOT</version>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>cn.edu.nwpu.rj416</groupId>
             <artifactId>motp-util</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.1.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
