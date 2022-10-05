@@ -55,6 +55,11 @@ public class MotpLoaderEnumSchema extends MotpSchema {
 		return buffer.getBytes();
 	}
 
+	@Override
+	public MByteBuffer getByteBuffer() {
+		return null;
+	}
+
 	public String getValueByOrdinal(int n) {
 		return this.values.get(n);
 	}

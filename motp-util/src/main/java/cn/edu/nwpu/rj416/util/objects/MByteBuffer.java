@@ -387,6 +387,30 @@ public class MByteBuffer { //32位系统，页表一页大小为4kB
         return bytes.length;
     }
 
+    /**
+     * 直接合并Bytebuffer, 避免再分配和复制一次 byte[]
+     *
+     * @param buffer
+     * @return
+     */
+    public int appendByteBuffer(MByteBuffer buffer) {
+        this.extendIfNessary(buffer.getSize());
+        System.arraycopy(buffer.getRawBuffer(), 0, this.buffer, this.offset, buffer.getSize());
+        this.offset += buffer.getSize();
+        this.updataSize();
+
+        return buffer.getSize();
+    }
+
+    /**
+     * 合并ByteBuffer, 同时在前面加上变长MVInt
+     */
+    public void appendSizeAndByteBuffer(MByteBuffer buffer) {
+
+        appendMVLInt(buffer.size);
+        appendByteBuffer(buffer);
+    }
+
     //在缓冲区中指定位置处添加一段字节码数组
     public MByteBuffer writeBytes(int offset, byte[] bytes) {
         this.assetOffset(offset, bytes.length);

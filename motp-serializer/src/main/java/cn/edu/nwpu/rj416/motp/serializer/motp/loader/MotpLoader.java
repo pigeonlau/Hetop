@@ -1,7 +1,5 @@
 package cn.edu.nwpu.rj416.motp.serializer.motp.loader;
 
-
-
 import cn.edu.nwpu.rj416.motp.serializer.motp.loader.loader.MotpDataLoader;
 import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
 import cn.edu.nwpu.rj416.util.exception.runtime.MInvalidValueException;

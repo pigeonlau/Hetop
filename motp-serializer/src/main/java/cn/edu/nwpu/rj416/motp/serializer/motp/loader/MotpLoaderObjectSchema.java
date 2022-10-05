@@ -45,6 +45,11 @@ public class MotpLoaderObjectSchema extends MotpSchema {
 		return buffer.getBytes();
 	}
 
+	@Override
+	public MByteBuffer getByteBuffer() {
+		return null;
+	}
+
 	public String getTypeName() {
 		return typeName;
 	}
