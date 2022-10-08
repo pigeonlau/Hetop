@@ -3,7 +3,7 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.builder;
 
 import cn.edu.nwpu.rj416.motp.reflectasm.FieldAccess;
 import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
-import cn.edu.nwpu.rj416.util.objects.MLinkedBuffer;
+import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -99,7 +99,7 @@ public class MotpBuilderSchema {
     }
 
     public byte[] getBytes() {
-        MLinkedBuffer buffer = new MLinkedBuffer();
+        MByteBuffer buffer = new MByteBuffer();
         List<MotpSchema> list = new ArrayList<>();
         list.addAll(this.schemas.values());
         list.sort(new Comparator<MotpSchema>() {
@@ -121,8 +121,8 @@ public class MotpBuilderSchema {
         return buffer.getBytes();
     }
 
-    public MLinkedBuffer getByteBuffer() {
-        MLinkedBuffer buffer = new MLinkedBuffer();
+    public MByteBuffer getByteBuffer() {
+        MByteBuffer buffer = new MByteBuffer();
         List<MotpSchema> list = new ArrayList<>();
         list.addAll(this.schemas.values());
         list.sort(new Comparator<MotpSchema>() {
@@ -136,10 +136,9 @@ public class MotpBuilderSchema {
         for (MotpSchema s : list) {
             buffer.appendMVLInt(s.getNumber());
             buffer.appendByte(s.getType());
-
-            MLinkedBuffer contents = s.getByteBuffer();
-            buffer.appendMVLInt(contents.getSize());
-            buffer.appendMLinkedBuffer(contents);
+            byte[] contents = s.getBytes();
+            buffer.appendMVLInt(contents.length);
+            buffer.appendBytes(contents);
         }
 
         return buffer;

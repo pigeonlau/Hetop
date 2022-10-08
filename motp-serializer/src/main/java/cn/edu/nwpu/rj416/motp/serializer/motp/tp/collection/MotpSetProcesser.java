@@ -3,7 +3,6 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.tp.collection;
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpType;
 import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
-import cn.edu.nwpu.rj416.util.objects.MLinkedBuffer;
 import cn.edu.nwpu.rj416.util.objects.MVLInt;
 
 import java.util.List;
@@ -17,8 +16,10 @@ public class MotpSetProcesser implements MotpTypeProcesser {
 	}
 	
 	@Override
-	public void writeValue(MLinkedBuffer byteBuffer, Object o) {
+	public int writeValue(MByteBuffer byteBuffer, Object o) {
 		List<?> str = (List<?>)o;
+		
+		return 0;
 	}
 
 	@Override
