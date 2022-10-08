@@ -1,27 +1,33 @@
 package cn.edu.nwpu.rj416.motp.serializer.motp.schema;
 
+import cn.edu.nwpu.rj416.util.objects.MLinkedBuffer;
+
 public abstract class MotpSchema {
-	public static final byte EnumSchema = 1;
-	public static final byte ObjectSchema = 2;
-	
-	private int number;
-	private byte type;
+    public static final byte EnumSchema = 1;
+    public static final byte ObjectSchema = 2;
 
-	public int getNumber() {
-		return number;
-	}
+    private int number;
+    private byte type;
 
-	public void setNumber(int number) {
-		this.number = number;
-	}
+    public int getNumber() {
+        return number;
+    }
 
-	public byte getType() {
-		return type;
-	}
+    public void setNumber(int number) {
+        this.number = number;
+    }
 
-	public void setType(byte type) {
-		this.type = type;
-	}
-	
-	public abstract byte[] getBytes(); 
+    public byte getType() {
+        return type;
+    }
+
+    public void setType(byte type) {
+        this.type = type;
+    }
+
+    public abstract byte[] getBytes();
+
+    public MLinkedBuffer getByteBuffer() {
+        return null;
+    }
 }

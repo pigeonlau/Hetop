@@ -6,6 +6,7 @@ import cn.edu.nwpu.rj416.motp.serializer.motp.MotpType;
 import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
 import cn.edu.nwpu.rj416.util.exception.runtime.MacawRuntimeException;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
+import cn.edu.nwpu.rj416.util.objects.MLinkedBuffer;
 import cn.edu.nwpu.rj416.util.objects.MVLInt;
 
 import java.io.UnsupportedEncodingException;
@@ -19,7 +20,7 @@ public class MotpMapProcesser implements MotpTypeProcesser {
 	}
 	
 	@Override
-	public int writeValue(MByteBuffer byteBuffer, Object o) {
+	public void writeValue(MLinkedBuffer byteBuffer, Object o) {
 		String str = (String)o;
 		byte[] bytes;
 		try {
@@ -27,9 +28,9 @@ public class MotpMapProcesser implements MotpTypeProcesser {
 		} catch (UnsupportedEncodingException e) {
 			throw new MacawRuntimeException("无法将String转为UTF-8");
 		}
-		int len = byteBuffer.appendMVLInt(new MVLInt(bytes.length));
-		len += byteBuffer.appendBytes(bytes);
-		return len;
+		byteBuffer.appendMVLInt(new MVLInt(bytes.length));
+		byteBuffer.appendBytes(bytes);
+
 	}
 
 	@Override

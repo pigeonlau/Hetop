@@ -4,6 +4,7 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.tp.primitivearray;
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpType;
 import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
+import cn.edu.nwpu.rj416.util.objects.MLinkedBuffer;
 
 public class MotpInt8ArrayProcesser implements MotpTypeProcesser {
 
@@ -13,12 +14,11 @@ public class MotpInt8ArrayProcesser implements MotpTypeProcesser {
 	}
 	
 	@Override
-	public int writeValue(MByteBuffer byteBuffer, Object o) {
+	public void writeValue(MLinkedBuffer byteBuffer, Object o) {
 		byte[] bytes = (byte[])o;
-		int len = byteBuffer.appendMVLInt(bytes.length);
-		len += byteBuffer.appendBytes(bytes);
-		
-		return len;
+		byteBuffer.appendMVLInt(bytes.length);
+		byteBuffer.appendBytes(bytes);
+
 	}
 
 	@Override
