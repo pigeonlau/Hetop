@@ -128,9 +128,10 @@ public class MotpBuilderSchema {
         for (MotpSchema s : list) {
             buffer.appendMVLInt(s.getNumber());
             buffer.appendByte(s.getType());
-            byte[] contents = s.getBytes();
-            buffer.appendMVLInt(contents.length);
-            buffer.appendBytes(contents);
+
+            MLinkedBuffer contents = s.getByteBuffer();
+            buffer.appendMVLInt(contents.getSize());
+            buffer.appendMLinkedBuffer(contents);
         }
 
         return buffer;

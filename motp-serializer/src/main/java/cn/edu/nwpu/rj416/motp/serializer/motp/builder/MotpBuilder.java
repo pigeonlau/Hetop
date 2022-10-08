@@ -55,7 +55,13 @@ public class MotpBuilder {
 
 //        return combineRes(schema.getByteBuffer(), dataBuffer);
 
-        return schema.getByteBuffer().appendMLinkedBuffer(dataBuffer).getBytes();
+        MLinkedBuffer res = new MLinkedBuffer();
+        res.appendMVLInt(schema.getByteBuffer().getSize());
+        res.appendMLinkedBuffer(schema.getByteBuffer());
+        res.appendMVLInt(dataBuffer.getSize());
+        res.appendMLinkedBuffer(dataBuffer);
+
+        return res.getBytes();
 
     }
 

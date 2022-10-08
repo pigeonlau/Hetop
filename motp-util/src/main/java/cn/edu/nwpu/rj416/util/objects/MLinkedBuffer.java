@@ -12,7 +12,7 @@ import java.util.Arrays;
  */
 public class MLinkedBuffer {
 
-    private static final int BUFFER_SIZE = 512;
+    private static final int BUFFER_SIZE = 4096;
 
     private byte[] buffer;
 
@@ -20,10 +20,13 @@ public class MLinkedBuffer {
 
     private MLinkedBuffer next;
 
+    private MLinkedBuffer tail;
+
     public MLinkedBuffer() {
         buffer = new byte[BUFFER_SIZE];
         offset = 0;
         next = null;
+        tail = this;
     }
 
     public MLinkedBuffer(byte[] bytes) {
@@ -34,9 +37,13 @@ public class MLinkedBuffer {
         this();
 
         int remain = bytes.length - startIndex;
-        for (int i = 0; i < Math.min(BUFFER_SIZE, remain); i++) {
-            buffer[offset++] = bytes[startIndex++];
-        }
+//        for (int i = 0; i < Math.min(BUFFER_SIZE, remain); i++) {
+//            buffer[offset++] = bytes[startIndex++];
+//        }
+        int times = Math.min(BUFFER_SIZE, remain);
+        System.arraycopy(bytes, startIndex, buffer, offset, times);
+        offset += times;
+        startIndex += times;
         // 超限
         if (startIndex < bytes.length) {
             next = new MLinkedBuffer(bytes, startIndex);
@@ -90,16 +97,17 @@ public class MLinkedBuffer {
      * @return
      */
     public MLinkedBuffer moveToLastAppendNode(int size) {
-        MLinkedBuffer cur = this;
+        MLinkedBuffer cur = this.tail;
         while (cur.next != null) {
             cur = cur.next;
         }
 
         // 节点剩余空间不足, 开启新节点
-        if (remainSizeIsNotEnough(size)) {
+        if (cur.remainSizeIsNotEnough(size)) {
             cur.next = new MLinkedBuffer();
             cur = cur.next;
         }
+        this.tail = cur;
 
         return cur;
     }
@@ -151,7 +159,7 @@ public class MLinkedBuffer {
     }
 
     public MLinkedBuffer appendLong(long l) {
-        MLinkedBuffer lastAppendNode = moveToLastAppendNode(4);
+        MLinkedBuffer lastAppendNode = moveToLastAppendNode(8);
 
         lastAppendNode.buffer[lastAppendNode.offset++] = (byte) ((l >> 56) & 0xFF);
         lastAppendNode.buffer[lastAppendNode.offset++] = (byte) ((l >> 48) & 0xFF);
@@ -187,9 +195,15 @@ public class MLinkedBuffer {
         MLinkedBuffer lastAppendNode = moveToLastAppendNode(0);
 
         int index = 0;
-        for (int i = 0; i < Math.min(bytes.length, BUFFER_SIZE - lastAppendNode.offset); i++) {
-            lastAppendNode.buffer[lastAppendNode.offset++] = bytes[index++];
-        }
+//        for (int i = 0; i < Math.min(bytes.length, BUFFER_SIZE - lastAppendNode.offset); i++) {
+//            lastAppendNode.buffer[lastAppendNode.offset++] = bytes[index++];
+//        }
+
+        int times = Math.min(BUFFER_SIZE - offset, bytes.length);
+        System.arraycopy(bytes, 0, buffer, offset, times);
+        offset += times;
+        index += times;
+
         if (index < bytes.length) {
             lastAppendNode.next = new MLinkedBuffer(bytes, index);
             return lastAppendNode.next;
