@@ -98,28 +98,28 @@ public class MotpBuilderSchema {
         return this.schemas.containsKey(clazz);
     }
 
-    public byte[] getBytes() {
-        MByteBuffer buffer = new MByteBuffer();
-        List<MotpSchema> list = new ArrayList<>();
-        list.addAll(this.schemas.values());
-        list.sort(new Comparator<MotpSchema>() {
-
-            @Override
-            public int compare(MotpSchema arg0, MotpSchema arg1) {
-                return arg0.getNumber() - arg1.getNumber();
-            }
-
-        });
-        for (MotpSchema s : list) {
-            buffer.appendMVLInt(s.getNumber());
-            buffer.appendByte(s.getType());
-            byte[] contents = s.getBytes();
-            buffer.appendMVLInt(contents.length);
-            buffer.appendBytes(contents);
-        }
-
-        return buffer.getBytes();
-    }
+//    public byte[] getBytes() {
+//        MByteBuffer buffer = new MByteBuffer();
+//        List<MotpSchema> list = new ArrayList<>();
+//        list.addAll(this.schemas.values());
+//        list.sort(new Comparator<MotpSchema>() {
+//
+//            @Override
+//            public int compare(MotpSchema arg0, MotpSchema arg1) {
+//                return arg0.getNumber() - arg1.getNumber();
+//            }
+//
+//        });
+//        for (MotpSchema s : list) {
+//            buffer.appendMVLInt(s.getNumber());
+//            buffer.appendByte(s.getType());
+//            byte[] contents = s.getBytes();
+//            buffer.appendMVLInt(contents.length);
+//            buffer.appendBytes(contents);
+//        }
+//
+//        return buffer.getBytes();
+//    }
 
     public MByteBuffer getByteBuffer() {
         MByteBuffer buffer = new MByteBuffer();
@@ -136,9 +136,10 @@ public class MotpBuilderSchema {
         for (MotpSchema s : list) {
             buffer.appendMVLInt(s.getNumber());
             buffer.appendByte(s.getType());
-            byte[] contents = s.getBytes();
-            buffer.appendMVLInt(contents.length);
-            buffer.appendBytes(contents);
+//            byte[] contents = s.getBytes();
+//            buffer.appendMVLInt(contents.length);
+//            buffer.appendBytes(contents);
+            buffer.appendSizeAndByteBuffer(s.getByteBuffer());
         }
 
         return buffer;

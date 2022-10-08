@@ -245,8 +245,7 @@ public class MotpBuilder {
             this.appendData(objectContent, fieldValue);
         }
 
-        dataBuffer.appendMVLInt(objectContent.getSize());
-        dataBuffer.appendBytes(objectContent.getBytes());
+        dataBuffer.appendSizeAndByteBuffer(objectContent);
 
     }
 
