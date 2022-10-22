@@ -38,7 +38,9 @@ public class ObjectLoader {
 			Type destType) {
 
 		int schemaNumber = buffer.readMVLInt().castToInteger();
-		int dataLen = buffer.readMVLInt().castToInteger();
+
+		// 对象的datalen  使用定长4字节
+		int dataLen = buffer.readInt();
 		
 		MotpSchema schema = loader.getSchemas().get(schemaNumber);
 		if (!(schema instanceof MotpLoaderObjectSchema)) {
