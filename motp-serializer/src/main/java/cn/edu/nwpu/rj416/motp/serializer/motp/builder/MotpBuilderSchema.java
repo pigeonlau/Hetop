@@ -139,7 +139,12 @@ public class MotpBuilderSchema {
 //            byte[] contents = s.getBytes();
 //            buffer.appendMVLInt(contents.length);
 //            buffer.appendBytes(contents);
-            buffer.appendSizeAndByteBuffer(s.getByteBuffer());
+
+            int offset = buffer.getOffset();
+            buffer.appendInt(0);
+            s.appendBytes(buffer);
+
+            buffer.writeInt(offset, buffer.getOffset() - offset - 4);
         }
 
         return buffer;

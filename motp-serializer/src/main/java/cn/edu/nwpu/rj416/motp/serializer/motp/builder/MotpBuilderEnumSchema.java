@@ -85,6 +85,29 @@ class MotpBuilderEnumSchema extends MotpSchema {
 		return schemaContent;
 	}
 
+	@Override
+	public void appendBytes(MByteBuffer buffer) {
+
+		List<MotpBuilderEnumSchemaValue> valueList = new ArrayList<>();
+
+		for (MotpBuilderEnumSchemaValue v : this.values.values()) {
+			if (!v.isInUse()) {
+				continue;
+			}
+			valueList.add(v);
+		}
+
+		buffer.appendMVLInt(valueList.size());
+
+		for (MotpBuilderEnumSchemaValue v : valueList) {
+			buffer.appendMVLInt(new MVLInt(v.getOridnal()));
+			byte[] nameBytes = StringUtil.getBytes(v.getName());
+			buffer.appendMVLInt(new MVLInt(nameBytes.length));
+			buffer.appendBytes(nameBytes);
+		}
+
+	}
+
 	public MotpBuilderEnumSchemaValue getValueByOrdinal(int n) {
 		return this.values.get(n);
 	}

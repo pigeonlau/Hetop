@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ *
  * @author MilesLiu
  *
  * 2020年3月13日 下午5:03:14
@@ -24,12 +24,12 @@ public class MotpLoader {
 	private MByteBuffer schemaBuffer;
 	private MByteBuffer dataBuffer;
 	private MotpLoaderSchema schemas = new MotpLoaderSchema();
-	private Map<Class<?>, MotpLoaderEnumClassCache> enumClassCache = new HashMap<>(); 
-	private Map<Class<?>, MotpLoaderCustomClassCache> customClassCache = new HashMap<>(); 
+	private Map<Class<?>, MotpLoaderEnumClassCache> enumClassCache = new HashMap<>();
+	private Map<Class<?>, MotpLoaderCustomClassCache> customClassCache = new HashMap<>();
 	public Object loadBytes(byte[] bytes, Type type) {
 		this.motpBytes = bytes;
 		MByteBuffer buffer = new MByteBuffer(this.motpBytes);
-		
+
 		this.schemaLen = buffer.readMVLInt();
 		//反序列化的时候线读取schema部分再读取data部分
 
@@ -41,26 +41,26 @@ public class MotpLoader {
 		if (this.dataLen.getValue() == 0) {
 			return null;
 		}
-		
 
-		
+
+
 		byte[] dataBytes = buffer.readBytes(dataLen.castToInteger());
 		this.dataBuffer = new MByteBuffer(dataBytes);
-		
+
 		Object obj = MotpDataLoader.readData(this, this.dataBuffer, type);
 		if (obj == null) {
 			return null;
 		}
-		
+
 		return obj;
 	}
-	
+
 	public Object loadBytes(byte[] bytes) {
 		this.motpBytes = bytes;
 		MByteBuffer buffer = new MByteBuffer(this.motpBytes);
-		
+
 		this.schemaLen = buffer.readMVLInt();
-		
+
 		byte[] schemaBytes = buffer.readBytes(schemaLen.castToInteger());
 		this.schemaBuffer = new MByteBuffer(schemaBytes);
 		this.loadSchema();
@@ -73,15 +73,15 @@ public class MotpLoader {
         }
 		byte[] dataBytes = buffer.readBytes(dataLen.castToInteger());
 		this.dataBuffer = new MByteBuffer(dataBytes);
-		
+
 		Object obj = MotpDataLoader.readData(this, this.dataBuffer);
 		if (obj == null) {
 			return null;
 		}
-		
+
 		return obj;
 	}
-	
+
 	private void loadSchema() {
 		if (this.schemaBuffer == null) {
 			return;
@@ -90,8 +90,8 @@ public class MotpLoader {
 		while (pos < schemaBuffer.getSize()) {
 			int number = schemaBuffer.readMVLInt().castToInteger();
 			byte type = schemaBuffer.readByte();
-			int len = schemaBuffer.readMVLInt().castToInteger();
-			
+			int len = schemaBuffer.readInt();
+
 			MotpSchema schema = null;
 			if (type == MotpSchema.EnumSchema) {
 				schema = this.loadEnumSchema(len);
@@ -101,7 +101,7 @@ public class MotpLoader {
 				throw new MInvalidValueException(
 						"未知的Schema类型：%d, Offset:%d", type, pos);
 			}
-			
+
 			schema.setNumber(number);
 			this.schemas.add(number, schema);
 
@@ -112,10 +112,10 @@ public class MotpLoader {
 			throw new MInvalidValueException("SchemaLength与实际Schema定义不符");
 		}
 	}
-	
+
 	private MotpLoaderEnumSchema loadEnumSchema(int len) {
 		MotpLoaderEnumSchema schema = new MotpLoaderEnumSchema();
-		
+
 		int pos = schemaBuffer.getOffset();
 		int end = pos + len;
 		int size = schemaBuffer.readMVLInt().castToInteger();
@@ -125,7 +125,7 @@ public class MotpLoader {
 			MVLInt nameLen = schemaBuffer.readMVLInt();
 			byte[] nameBytes = this.schemaBuffer.readBytes(nameLen.castToInteger());
 			String name = StringUtil.newString(nameBytes);
-			
+
 			schema.addValue(ordinal.castToInteger(), name);
 			pos = this.schemaBuffer.getOffset();
 		}
@@ -135,19 +135,19 @@ public class MotpLoader {
 		}
 		return schema;
 	}
-	
+
 
 	private MotpLoaderObjectSchema loadObjectSchema(int len) {
 		MotpLoaderObjectSchema schema = new MotpLoaderObjectSchema();
-		
+
 		int pos = schemaBuffer.getOffset();
 		int end = pos + len;
-		
+
 		MVLInt typeNameLen = schemaBuffer.readMVLInt();
 		byte[] typeNameBytes = this.schemaBuffer.readBytes(typeNameLen.castToInteger());
 		String typeName = StringUtil.newString(typeNameBytes);
 		schema.setTypeName(typeName);
-		
+
 		int size = schemaBuffer.readMVLInt().castToInteger();
 		for (int i = 0; i < size; i++) {
 
@@ -155,7 +155,7 @@ public class MotpLoader {
 			MVLInt nameLen = schemaBuffer.readMVLInt();
 			byte[] nameBytes = this.schemaBuffer.readBytes(nameLen.castToInteger());
 			String name = StringUtil.newString(nameBytes);
-			
+
 			schema.addColumn(number, name);
 			pos = this.schemaBuffer.getOffset();
 		}
@@ -169,10 +169,10 @@ public class MotpLoader {
 	public MotpLoaderSchema getSchemas() {
 		return schemas;
 	}
-	
 
-	
-	
+
+
+
 
 	public Map<Class<?>, MotpLoaderEnumClassCache> getEnumClassCache() {
 		return enumClassCache;

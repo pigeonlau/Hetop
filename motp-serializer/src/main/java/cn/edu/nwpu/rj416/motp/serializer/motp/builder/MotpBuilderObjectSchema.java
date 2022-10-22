@@ -97,6 +97,31 @@ class MotpBuilderObjectSchema extends MotpSchema {
         return buffer;
     }
 
+    @Override
+    public void appendBytes(MByteBuffer buffer) {
+//
+        byte[] classNameBytes = StringUtil.getBytes(this.getClassName());
+        buffer.appendMVLInt(classNameBytes.length);
+        buffer.appendBytes(classNameBytes);
+
+        List<MotpBuilderObjectSchemaColumn> list = new ArrayList<>();
+        for (MotpBuilderObjectSchemaColumn c : this.columns.values()) {
+            if (!c.isInUse()) {
+                continue;
+            }
+            list.add(c);
+        }
+
+        buffer.appendMVLInt(new MVLInt(list.size()));
+
+        for (MotpBuilderObjectSchemaColumn c : list) {
+            buffer.appendMVLInt(new MVLInt(c.getNumber()));
+            byte[] nameBytes = StringUtil.getBytes(c.getName());
+            buffer.appendMVLInt(new MVLInt(nameBytes.length));
+            buffer.appendBytes(nameBytes);
+        }
+    }
+
     public MotpBuilderObjectSchemaColumn getColumnByName(String name) {
         return this.columns.get(name);
     }

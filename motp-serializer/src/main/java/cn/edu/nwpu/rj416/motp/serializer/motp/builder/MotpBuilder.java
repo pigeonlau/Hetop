@@ -9,6 +9,7 @@ import cn.edu.nwpu.rj416.motp.serializer.motp.util.MotpProcesserMapping;
 import cn.edu.nwpu.rj416.util.astype.AsType;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
 import cn.edu.nwpu.rj416.util.objects.MVLInt;
+import com.alibaba.fastjson.JSONObject;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -224,7 +225,9 @@ public class MotpBuilder {
         dataBuffer.appendByte(MotpType.OBJECT);
         dataBuffer.appendMVLInt(objectSchema.getNumber());
 
-        MByteBuffer objectContent = new MByteBuffer();
+        // 提前占4位 int  作为 后续 buffer数据的长度
+        int offset = dataBuffer.getOffset();
+        dataBuffer.appendInt(0);
         for (Field f : objectSchema.getFields()) {//反射
             f.setAccessible(true);//暴力反射，
             Object fieldValue = f.get(o);
@@ -241,11 +244,12 @@ public class MotpBuilder {
             column.setInUse(true);
 //			dataBuffer.appendMVLInt(column.getNumber());
 //			this.appendData(dataBuffer,fieldValue);
-            objectContent.appendMVLInt(column.getNumber());
-            this.appendData(objectContent, fieldValue);
+            dataBuffer.appendMVLInt(column.getNumber());
+            this.appendData(dataBuffer, fieldValue);
         }
 
-        dataBuffer.appendSizeAndByteBuffer(objectContent);
+        // 重新填补后续databuffer的长度
+        dataBuffer.writeInt(offset, dataBuffer.getOffset() - offset - 4);
 
     }
 

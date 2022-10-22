@@ -28,4 +28,6 @@ public abstract class MotpSchema {
     public abstract byte[] getBytes();
 
     public abstract MByteBuffer getByteBuffer();
+
+    public void appendBytes(MByteBuffer buffer){};
 }
