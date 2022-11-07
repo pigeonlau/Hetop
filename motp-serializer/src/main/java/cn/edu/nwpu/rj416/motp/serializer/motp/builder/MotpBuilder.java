@@ -101,7 +101,7 @@ public class MotpBuilder {
             }
             object = asObject;
         }
-        //应用了反射机制
+
         Class<?> objectClass = object.getClass();
 
 
@@ -117,15 +117,11 @@ public class MotpBuilder {
 
         /*
          * 判断是否为数组或基本集合
+         * 为 包装类型数组  或者  普通obj数组, 否则获取到processor
          */
         if (objectClass.isArray()) {
 
-            int arrLen = Array.getLength(object);
-            List<Object> list = new ArrayList<>();
-            for (int i = 0; i < arrLen; i++) {
-                list.add(Array.get(object, i));
-            }
-            this.appendList(dataBuffer, list);
+            appendArray(dataBuffer, (Object[]) object);
 
         } else if (objectClass.isEnum()) {
             MotpBuilderEnumSchema enumSchema = this.schema.getEnumSchemaByClass(objectClass);
@@ -162,6 +158,27 @@ public class MotpBuilder {
         }
 
         this.buildNormalObject(dataBuffer, object);
+    }
+
+    private void appendArray(MByteBuffer dataBuffer, Object[] arr) throws Exception {
+        dataBuffer.appendByte(MotpType.LIST);
+        dataBuffer.appendMVLInt(arr.length);
+        // 首先获取数组类型, 尝试获取数组类型的快速处理器
+        Class<?> componentType = arr.getClass().getComponentType();
+        MotpTypeProcesser processer = MotpProcesserMapping.getProcesser(componentType);
+        if (processer != null) {
+            for (Object o : arr) {
+                processer.writeValue(dataBuffer, o);
+            }
+        } else if (isNormalObject(componentType)) {
+            for (Object o : arr) {
+                this.buildNormalObject(dataBuffer, o);
+            }
+        } else {
+            for (Object o : arr) {
+                this.appendData(dataBuffer, o);
+            }
+        }
     }
 
     private void appendList(MByteBuffer dataBuffer, List<?> list) throws Exception {
@@ -251,6 +268,29 @@ public class MotpBuilder {
         // 重新填补后续databuffer的长度
         dataBuffer.writeInt(offset, dataBuffer.getOffset() - offset - 4);
 
+    }
+
+    /**
+     * 判断 某个类的对象, 是否应该走 buildNormalObject
+     *
+     * @param obj
+     * @return
+     */
+    private boolean isNormalObject(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        Class<?> clazz = obj.getClass();
+
+        return clazz != Object.class
+                && !AsType.class.isAssignableFrom(clazz)
+                && MotpProcesserMapping.getProcesser(clazz) == null
+                && !clazz.isArray()
+                && !clazz.isEnum()
+                && !List.class.isAssignableFrom(clazz)
+                && !Map.class.isAssignableFrom(clazz)
+                && !Set.class.isAssignableFrom(clazz)
+                && !File.class.isAssignableFrom(clazz);
     }
 
 
