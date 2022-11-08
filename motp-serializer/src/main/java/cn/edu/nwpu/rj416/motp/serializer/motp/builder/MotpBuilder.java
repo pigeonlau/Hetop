@@ -14,6 +14,8 @@ import com.alibaba.fastjson.JSONObject;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -122,6 +124,7 @@ public class MotpBuilder {
         if (objectClass.isArray()) {
 
             appendArray(dataBuffer, (Object[]) object);
+            return;
 
         } else if (objectClass.isEnum()) {
             MotpBuilderEnumSchema enumSchema = this.schema.getEnumSchemaByClass(objectClass);
@@ -168,6 +171,7 @@ public class MotpBuilder {
         MotpTypeProcesser processer = MotpProcesserMapping.getProcesser(componentType);
         if (processer != null) {
             for (Object o : arr) {
+                dataBuffer.appendByte(processer.getMosType());
                 processer.writeValue(dataBuffer, o);
             }
         } else if (isNormalObject(componentType)) {
@@ -181,11 +185,118 @@ public class MotpBuilder {
         }
     }
 
+    /**
+     * 传递来源字段Filed, 获取具体泛型类型, 以便优化
+     *
+     * @param dataBuffer
+     * @param list
+     * @param f
+     */
+    private void appendList(MByteBuffer dataBuffer, List<?> list, Field f) throws Exception {
+        dataBuffer.appendByte(MotpType.LIST);
+        dataBuffer.appendMVLInt(list.size());
+
+        Type genericType = f.getGenericType();
+        if (genericType instanceof ParameterizedType) {
+            try {
+                Type t = ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0];
+                // 应该只有常规泛型可以转型成功, 通配符泛型不行
+                Class<?> clazz = (Class<?>) t;
+                MotpTypeProcesser fastProcessor = MotpProcesserMapping.getProcesser(clazz);
+                if (fastProcessor != null) {
+                    for (Object o : list) {
+                        dataBuffer.appendByte(fastProcessor.getMosType());
+                        fastProcessor.writeValue(dataBuffer, o);
+                    }
+                } else if (isNormalObject(clazz)) {
+                    for (Object o : list) {
+                        buildNormalObject(dataBuffer, o);
+                    }
+                } else {
+                    for (Object o : list) {
+                        appendData(dataBuffer, o);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                // 不是常规泛型  可能是 ? super Object的类别
+                for (Object ele : list) {
+                    this.appendData(dataBuffer, ele);
+                }
+            }
+        } else {
+            // 可能无泛型标识
+            for (Object ele : list) {
+                this.appendData(dataBuffer, ele);
+            }
+        }
+    }
+
     private void appendList(MByteBuffer dataBuffer, List<?> list) throws Exception {
         dataBuffer.appendByte(MotpType.LIST);
         dataBuffer.appendMVLInt(list.size());
         for (Object ele : list) {
             this.appendData(dataBuffer, ele);
+        }
+    }
+
+    private void appendMap(MByteBuffer dataBuffer, Map<?, ?> map, Field f) throws Exception {
+        dataBuffer.appendByte(MotpType.MAP);
+        dataBuffer.appendMVLInt(map.size());
+
+        Type genericType = f.getGenericType();
+        if (genericType instanceof ParameterizedType) {
+            try {
+                Type keyType = ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0];
+                Type valueType = ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[1];
+
+                // 应该只有常规泛型可以转型成功, 通配符泛型不行
+                Class<?> keyClazz = (Class<?>) keyType;
+                Class<?> valueClazz = (Class<?>) valueType;
+
+                MotpTypeProcesser keyProcessor = MotpProcesserMapping.getProcesser(keyClazz);
+                boolean keyIsNormalObject = isNormalObject(keyClazz);
+                MotpTypeProcesser valueProcessor = MotpProcesserMapping.getProcesser(valueClazz);
+                boolean valueIsNormalObject = isNormalObject(valueClazz);
+
+
+                for (Map.Entry<?, ?> entry : map.entrySet()) {
+                    Object key = entry.getKey();
+                    if (keyProcessor != null) {
+                        dataBuffer.appendByte(keyProcessor.getMosType());
+                        keyProcessor.writeValue(dataBuffer, key);
+                    } else if (keyIsNormalObject) {
+                        buildNormalObject(dataBuffer, key);
+                    } else {
+                        appendData(dataBuffer, key);
+                    }
+
+                    Object value = entry.getValue();
+                    if (valueProcessor != null) {
+                        dataBuffer.appendByte(valueProcessor.getMosType());
+                        valueProcessor.writeValue(dataBuffer, value);
+                    } else if (valueIsNormalObject) {
+                        buildNormalObject(dataBuffer, value);
+                    } else {
+                        appendData(dataBuffer, value);
+                    }
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                // 不是常规泛型  可能是 ? super Object的类别
+                for (Map.Entry<?, ?> entry : map.entrySet()) {
+                    this.appendData(dataBuffer, entry.getKey());
+                    this.appendData(dataBuffer, entry.getValue());
+                }
+            }
+        } else {
+            // 可能无泛型标识
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                this.appendData(dataBuffer, entry.getKey());
+                this.appendData(dataBuffer, entry.getValue());
+            }
         }
     }
 
@@ -195,6 +306,47 @@ public class MotpBuilder {
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             this.appendData(dataBuffer, entry.getKey());
             this.appendData(dataBuffer, entry.getValue());
+        }
+    }
+
+    private void appendSet(MByteBuffer dataBuffer, Set<?> set, Field f) throws Exception {
+        dataBuffer.appendByte(MotpType.SET);
+        dataBuffer.appendMVLInt(set.size());
+
+        Type genericType = f.getGenericType();
+        if (genericType instanceof ParameterizedType) {
+            try {
+                Type t = ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0];
+                // 应该只有常规泛型可以转型成功, 通配符泛型不行
+                Class<?> clazz = (Class<?>) t;
+                MotpTypeProcesser fastProcessor = MotpProcesserMapping.getProcesser(clazz);
+                if (fastProcessor != null) {
+                    for (Object o : set) {
+                        dataBuffer.appendByte(fastProcessor.getMosType());
+                        fastProcessor.writeValue(dataBuffer, o);
+                    }
+                } else if (isNormalObject(clazz)) {
+                    for (Object o : set) {
+                        buildNormalObject(dataBuffer, o);
+                    }
+                } else {
+                    for (Object o : set) {
+                        appendData(dataBuffer, o);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                // 不是常规泛型  可能是 ? super Object的类别
+                for (Object ele : set) {
+                    this.appendData(dataBuffer, ele);
+                }
+            }
+        } else {
+            // 可能无泛型标识
+            for (Object ele : set) {
+                this.appendData(dataBuffer, ele);
+            }
         }
     }
 
@@ -224,6 +376,10 @@ public class MotpBuilder {
     }
 
     private void buildNormalObject(MByteBuffer dataBuffer, Object o) throws Exception, IllegalAccessException {
+        if (o == null) {
+            dataBuffer.appendByte(MotpType.VOID);
+            return;
+        }
         Class<?> clazz = o.getClass();
 
         MotpBuilderObjectSchema objectSchema = this.schema.getObjectSchemaByClass(clazz);
@@ -245,8 +401,8 @@ public class MotpBuilder {
         // 提前占4位 int  作为 后续 buffer数据的长度
         int offset = dataBuffer.getOffset();
         dataBuffer.appendInt(0);
-        for (Field f : objectSchema.getFields()) {//反射
-            f.setAccessible(true);//暴力反射，
+        for (Field f : objectSchema.getFields()) {
+            f.setAccessible(true);
             Object fieldValue = f.get(o);
 
             if (fieldValue == null) {
@@ -259,10 +415,20 @@ public class MotpBuilder {
             }
 
             column.setInUse(true);
-//			dataBuffer.appendMVLInt(column.getNumber());
-//			this.appendData(dataBuffer,fieldValue);
+
             dataBuffer.appendMVLInt(column.getNumber());
-            this.appendData(dataBuffer, fieldValue);
+
+            // 泛型类型 field
+            Class<?> type = f.getType();
+            if (type.isAssignableFrom(List.class)) {
+                appendList(dataBuffer, (List<?>) fieldValue, f);
+            } else if (type.isAssignableFrom(Set.class)) {
+                appendSet(dataBuffer, (Set<?>) fieldValue, f);
+            } else if (type.isAssignableFrom(Map.class)) {
+                appendMap(dataBuffer, (Map<?, ?>) fieldValue, f);
+            } else {
+                this.appendData(dataBuffer, fieldValue);
+            }
         }
 
         // 重新填补后续databuffer的长度
@@ -276,11 +442,10 @@ public class MotpBuilder {
      * @param obj
      * @return
      */
-    private boolean isNormalObject(Object obj) {
-        if (obj == null) {
+    private boolean isNormalObject(Class<?> clazz) {
+        if (clazz == null) {
             return false;
         }
-        Class<?> clazz = obj.getClass();
 
         return clazz != Object.class
                 && !AsType.class.isAssignableFrom(clazz)
