@@ -218,8 +218,7 @@ public class MotpBuilder {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                // 不是常规泛型  可能是 ? super Object的类别
+                // 不是常规泛型  可能是 ? super Object的类别  wildcardTypeImpl
                 for (Object ele : list) {
                     this.appendData(dataBuffer, ele);
                 }
@@ -283,7 +282,6 @@ public class MotpBuilder {
 
                 }
             } catch (Exception e) {
-                e.printStackTrace();
 
                 // 不是常规泛型  可能是 ? super Object的类别
                 for (Map.Entry<?, ?> entry : map.entrySet()) {
@@ -335,7 +333,6 @@ public class MotpBuilder {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
 
                 // 不是常规泛型  可能是 ? super Object的类别
                 for (Object ele : set) {
