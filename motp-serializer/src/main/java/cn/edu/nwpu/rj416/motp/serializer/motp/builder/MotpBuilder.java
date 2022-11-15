@@ -101,14 +101,10 @@ public class MotpBuilder {
 
         res[0] = new byte[schemaByteBufferLength.getLen() + schema.getByteBuffer().getSize()];
         res[1] = new byte[dataBufferLength.getLen() + dataBuffer.getSize()];
-        int offset = 0;
-        System.arraycopy(schemaByteBufferLength.getBytes(), 0, res[0], offset, schemaByteBufferLength.getLen());
-        offset += schemaByteBufferLength.getLen();
-        System.arraycopy(schema.getByteBuffer().getRawBuffer(), 0, res[0], offset, schema.getByteBuffer().getSize());
-        offset += schema.getByteBuffer().getSize();
-        System.arraycopy(dataBufferLength.getBytes(), 0, res[1], offset, dataBufferLength.getLen());
-        offset += dataBufferLength.getLen();
-        System.arraycopy(dataBuffer.getRawBuffer(), 0, res[1], offset, dataBuffer.getSize());
+        System.arraycopy(schemaByteBufferLength.getBytes(), 0, res[0], 0, schemaByteBufferLength.getLen());
+        System.arraycopy(schema.getByteBuffer().getRawBuffer(), 0, res[0], schemaByteBufferLength.getLen(), schema.getByteBuffer().getSize());
+        System.arraycopy(dataBufferLength.getBytes(), 0, res[1], 0, dataBufferLength.getLen());
+        System.arraycopy(dataBuffer.getRawBuffer(), 0, res[1], dataBufferLength.getLen(), dataBuffer.getSize());
 
         return res;
     }
