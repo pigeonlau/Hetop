@@ -78,6 +78,59 @@ public class MotpBuilder {
         return res;
     }
 
+    public byte[][] getTwoParts(Object o) {
+        byte[][] res = new byte[2][];
+
+        if (o == null) {
+            return null;
+        }
+
+        //初始化
+        this.schema = new MotpBuilderSchema();
+        this.dataBuffer = new MByteBuffer();
+
+        //生成序列化数据
+        try {
+            this.appendData(this.dataBuffer, o);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        MVLInt schemaByteBufferLength = new MVLInt(schema.getByteBuffer().getSize());
+        MVLInt dataBufferLength = new MVLInt(dataBuffer.getSize());
+
+
+        res[0] = new byte[schemaByteBufferLength.getLen() + schema.getByteBuffer().getSize()];
+        res[1] = new byte[dataBufferLength.getLen() + dataBuffer.getSize()];
+        int offset = 0;
+        System.arraycopy(schemaByteBufferLength.getBytes(), 0, res[0], offset, schemaByteBufferLength.getLen());
+        offset += schemaByteBufferLength.getLen();
+        System.arraycopy(schema.getByteBuffer().getRawBuffer(), 0, res[0], offset, schema.getByteBuffer().getSize());
+        offset += schema.getByteBuffer().getSize();
+        System.arraycopy(dataBufferLength.getBytes(), 0, res[1], offset, dataBufferLength.getLen());
+        offset += dataBufferLength.getLen();
+        System.arraycopy(dataBuffer.getRawBuffer(), 0, res[1], offset, dataBuffer.getSize());
+
+        return res;
+    }
+
+    public byte[] getDataBytes(Object o) {
+        if (o == null) {
+            return new byte[]{0};
+        }
+        //初始化
+        this.schema = new MotpBuilderSchema();
+        this.dataBuffer = new MByteBuffer();
+
+        //生成序列化数据
+        try {
+            this.appendData(this.dataBuffer, o);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return dataBuffer.getBytes();
+    }
+
 
     /**
      * 生成对象的Schema和数据
