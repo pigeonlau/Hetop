@@ -109,9 +109,9 @@ public class MotpBuilder {
         return res;
     }
 
-    public byte[] getDataBytes(Object o) {
+    public byte[] getDataBytesPart(Object o) {
         if (o == null) {
-            return new byte[]{0};
+            return new byte[]{0, 0};
         }
         //初始化
         this.schema = new MotpBuilderSchema();
@@ -124,7 +124,12 @@ public class MotpBuilder {
             e.printStackTrace();
         }
 
-        return dataBuffer.getBytes();
+        MVLInt dataBufferLength = new MVLInt(dataBuffer.getSize());
+        byte[] bytes = new byte[dataBufferLength.getLen() + dataBuffer.getSize()];
+        System.arraycopy(dataBufferLength.getBytes(), 0, bytes, 0, dataBufferLength.getLen());
+        System.arraycopy(dataBuffer.getRawBuffer(), 0, bytes, dataBufferLength.getLen(), dataBuffer.getSize());
+
+        return bytes;
     }
 
 
