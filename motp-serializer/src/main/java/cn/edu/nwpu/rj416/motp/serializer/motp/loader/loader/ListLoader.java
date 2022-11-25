@@ -154,7 +154,7 @@ public class ListLoader {
 			MotpLoader loader,
 			MByteBuffer buffer, 
 			int size) {
-		ArrayList<Object> list = new ArrayList<>();
+		ArrayList<Object> list = new ArrayList<>(size);
 
 		for (int i = 0; i < size; i++) {
 			Object ele = MotpDataLoader.readData(loader, buffer);

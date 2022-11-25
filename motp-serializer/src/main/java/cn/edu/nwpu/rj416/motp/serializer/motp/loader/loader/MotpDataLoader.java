@@ -1,8 +1,6 @@
 package cn.edu.nwpu.rj416.motp.serializer.motp.loader.loader;
 
 
-
-
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpType;
 import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
 import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
@@ -19,6 +17,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 
 public class MotpDataLoader {
     public static Object readData(MotpLoader loader, MByteBuffer dataBuffer) {
@@ -84,6 +83,10 @@ public class MotpDataLoader {
         fastProcesser = MotpProcesserMapping.getProcesser(motpType);
         if (fastProcesser != null) {
             value = fastProcesser.read(dataBuffer);
+
+            if (Objects.equals(value.getClass(), destType)) {
+                return value;
+            }
         } else {
             switch (motpType) {
                 case MotpType.ENUM:

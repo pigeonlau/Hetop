@@ -2,6 +2,7 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.loader.loader;
 
 
 
+import cn.edu.nwpu.rj416.motp.reflectasm.ConstructorAccess;
 import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
 import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoaderCustomClassCache;
 import cn.edu.nwpu.rj416.type.util.MStringObjectMap;
@@ -148,8 +149,10 @@ public class MapLoader {
 			MByteBuffer buffer, 
 			int size,
 			Class<T> clazz) {
-		T obj = ObjectUtil.createObjectByClass(clazz);
-		
+		// asm
+		T obj= ConstructorAccess.get(clazz).newInstance();
+
+
 		MotpLoaderCustomClassCache ccc = loader.getCustomClassCache().get(clazz);
 		if (ccc == null) {
 			ccc = new MotpLoaderCustomClassCache();
