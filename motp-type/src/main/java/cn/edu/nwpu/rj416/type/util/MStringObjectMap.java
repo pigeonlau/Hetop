@@ -2,7 +2,7 @@ package cn.edu.nwpu.rj416.type.util;
 
 
 
-import cn.edu.nwpu.rj416.type.Macaw;
+import cn.edu.nwpu.rj416.type.TypeCaster;
 import cn.edu.nwpu.rj416.type.astype.cast.MTypeCastException;
 
 import java.util.*;
@@ -62,10 +62,10 @@ public class MStringObjectMap implements Map<String, Object>{
 		Object o = this.get(key);
 		T rst = null;
 		if (this.handler == null) {
-			rst = Macaw.cast(o, clazz);
+			rst = TypeCaster.cast(o, clazz);
 		} else {
 			try {
-				rst = Macaw.cast(o, clazz);
+				rst = TypeCaster.cast(o, clazz);
 			} catch (MTypeCastException e) {
 				rst = this.handler.onCanNotCast((String)key, o, clazz);
 			}
@@ -82,10 +82,10 @@ public class MStringObjectMap implements Map<String, Object>{
 		T rst = null;
 		
 		if (this.handler == null) {
-			rst = Macaw.cast(o, clazz);
+			rst = TypeCaster.cast(o, clazz);
 		} else {
 			try {
-				rst = Macaw.cast(o, clazz);
+				rst = TypeCaster.cast(o, clazz);
 			} catch (MTypeCastException e) {
 				rst = this.handler.onCanNotCast((String)key, o, clazz);
 			}
@@ -160,7 +160,7 @@ public class MStringObjectMap implements Map<String, Object>{
 			sb.append(entry.getKey());
 			if (entry.getValue() != null) {
 				try {
-					sb.append("=").append(Macaw.cast(entry.getValue(), String.class));
+					sb.append("=").append(TypeCaster.cast(entry.getValue(), String.class));
 				} catch (MTypeCastException e) {
 					
 				}

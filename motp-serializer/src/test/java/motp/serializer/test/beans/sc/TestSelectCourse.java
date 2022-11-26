@@ -9,16 +9,10 @@ import java.util.List;
  * @create: 2022-01-18 20:25
  **/
 public class TestSelectCourse {
-    String courseId;
-    List<TestTeacher> teachers;
-    List<TestStudent> students;
+    private String courseId;
+    private List<TestTeacher> teachers;
+    private List<TestStudent> students;
 
-    public TestSelectCourse(String courseId, List<TestTeacher> teachers, List<TestStudent> students) {
-        this.courseId = courseId;
-
-        this.teachers = teachers;
-        this.students = students;
-    }
 
     public String getCourseId() {
         return courseId;

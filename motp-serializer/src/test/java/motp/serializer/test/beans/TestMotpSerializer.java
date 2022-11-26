@@ -50,7 +50,7 @@ public class TestMotpSerializer {
     public static void main(String[] args) throws Exception {
 
         // test();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             test();
         }
 
@@ -82,12 +82,12 @@ public class TestMotpSerializer {
 
         String testName = Long.toString(System.currentTimeMillis());
         T view = (T) getRandomObject();
-//        T view = (T) getTest1();
+//        view = (T) getTest1();
         Class<T> clazzName = (Class<T>) view.getClass();
         while (clazzName.isInterface() || Modifier.isAbstract(clazzName.getModifiers())) {
-            if (clazzName.isArray()) {
-                break;
-            }
+//            if (clazzName.isArray()) {
+//                break;
+//            }
             view = (T) getRandomObject();
             clazzName = (Class<T>) view.getClass();
         }
@@ -298,7 +298,7 @@ public class TestMotpSerializer {
         Random random = new Random();
 
         while (obj == null) {
-            int index = random.nextInt(17);
+            int index = random.nextInt(50) + 1;
             switch (index) {
                 case 1:
                     obj = RandomObjectUtil.randomObject(String.class);
@@ -451,6 +451,12 @@ public class TestMotpSerializer {
                     break;
                 case 50:
                     obj = RandomObjectUtil.randomArrayList(String.class, 100);
+                    break;
+                case 51:
+                    obj = RandomObjectUtil.randomArrayList(TestView.class, 100);
+                    break;
+                case 52:
+                    obj = RandomObjectUtil.randomArrayList(TestBean.class, 1000);
                     break;
                 default:
                     obj = RandomObjectUtil.randomObject(TestView.class);

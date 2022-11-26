@@ -24,8 +24,8 @@ public class MotpLoader {
 	private MByteBuffer schemaBuffer;
 	private MByteBuffer dataBuffer;
 	private MotpLoaderSchema schemas = new MotpLoaderSchema();
-	private Map<Class<?>, MotpLoaderEnumClassCache> enumClassCache = new HashMap<>();
-	private Map<Class<?>, MotpLoaderCustomClassCache> customClassCache = new HashMap<>();
+	private static Map<Class<?>, MotpLoaderEnumClassCache> enumClassCache = new HashMap<>();
+	private static Map<Class<?>, MotpLoaderCustomClassCache> customClassCache = new HashMap<>();
 	public Object loadBytes(byte[] bytes, Type type) {
 		this.motpBytes = bytes;
 		MByteBuffer buffer = new MByteBuffer(this.motpBytes);

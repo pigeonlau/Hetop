@@ -5,7 +5,7 @@ import cn.edu.nwpu.rj416.motp.serializer.motp.MotpType;
 import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
 import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
 import cn.edu.nwpu.rj416.motp.serializer.motp.util.MotpProcesserMapping;
-import cn.edu.nwpu.rj416.type.Macaw;
+import cn.edu.nwpu.rj416.type.TypeCaster;
 import cn.edu.nwpu.rj416.type.astype.cast.MTypeCastException;
 import cn.edu.nwpu.rj416.type.util.MStringObjectMap;
 import cn.edu.nwpu.rj416.util.exception.runtime.MInvalidValueException;
@@ -114,7 +114,7 @@ public class MotpDataLoader {
 
 
         try {
-            return Macaw.cast(value, destType);
+            return TypeCaster.cast(value, destType);
         } catch (MTypeCastException e) {
             return null;
         }

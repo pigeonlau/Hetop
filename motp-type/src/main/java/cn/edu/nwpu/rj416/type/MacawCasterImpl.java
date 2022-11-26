@@ -141,7 +141,7 @@ public class MacawCasterImpl{
 			//创建要转换类型的空对象
 			List<?> fromList = (List<?>)value;
 			for (Object o : fromList) {
-				Object v = Macaw.cast(o, componentType);
+				Object v = TypeCaster.cast(o, componentType);
 				toList.add(v); //将要转换的列表类对象中的所有元素转换成目标列表的组件类型然后添加进目标类型的空表中
 			}
 			return toList;

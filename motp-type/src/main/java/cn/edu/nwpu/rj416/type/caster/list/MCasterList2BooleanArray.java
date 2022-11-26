@@ -2,7 +2,7 @@ package cn.edu.nwpu.rj416.type.caster.list;
 
 
 
-import cn.edu.nwpu.rj416.type.Macaw;
+import cn.edu.nwpu.rj416.type.TypeCaster;
 import cn.edu.nwpu.rj416.type.astype.cast.MTypeCastException;
 import cn.edu.nwpu.rj416.type.astype.cast.MTypeCaster;
 
@@ -25,7 +25,7 @@ public class MCasterList2BooleanArray implements MTypeCaster<List<?>, boolean[]>
 		
 		boolean[] arr = new boolean[value.size()];//数组大小为列表长度
 		for (int i = 0; i < value.size(); i++) {
-			arr[i] = Macaw.cast(value.get(i), boolean.class);//将列表中的每个元素转成布尔值，不能转则抛出异常
+			arr[i] = TypeCaster.cast(value.get(i), boolean.class);//将列表中的每个元素转成布尔值，不能转则抛出异常
 		}
 		return arr;
 	}

@@ -74,7 +74,7 @@ public class FormatUtil {
 			line.appendToken(TEXT_ID, "[");
 			line.appendToken(TYPE_NAME_ID, clazz.getName());
 			line.appendToken(TEXT_ID, "]");
-			String text = Macaw.cast(obj, String.class);
+			String text = TypeCaster.cast(obj, String.class);
 			line.appendToken(text);
 			lines.add(line);
 			return;

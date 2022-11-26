@@ -10,12 +10,12 @@ import java.util.List;
  * @create: 2022-01-17 21:13
  **/
 public class TestCourse {
-    String courseId;
-    String courseName;
-    String courseDes;
-    TestTeacher teacher;
-    List<TestCourse> preCourse;
-    List<TestBook> books;
+    private String courseId;
+    private String courseName;
+    private String courseDes;
+    private TestTeacher teacher;
+    private List<TestCourse> preCourse;
+    private List<TestBook> books;
 
     public TestCourse(String courseId, String courseName, String courseDes, TestTeacher teacher) {
         this.courseId = courseId;

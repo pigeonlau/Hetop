@@ -4,6 +4,7 @@ import cn.edu.nwpu.rj416.motp.serializer.motp.MotpSerializer;
 import cn.edu.nwpu.rj416.motp.serializer.motp.builder.MotpBuilder;
 import cn.edu.nwpu.rj416.type.random.RandomObjectUtil;
 import com.alibaba.fastjson.JSONObject;
+import motp.serializer.test.beans.sc.TestSelectCourse;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -50,6 +51,14 @@ public class Test1 {
 
         byte[] bytes = JSONObject.toJSONBytes(testView);
         System.out.println(bytes.length);
+
+
+        Object obj = RandomObjectUtil.randomObject(TestSelectCourse.class);
+        System.out.println(obj);
+
+        obj = RandomObjectUtil.randomObject(TestBean.class);
+        System.out.println(obj);
+
 
     }
 }

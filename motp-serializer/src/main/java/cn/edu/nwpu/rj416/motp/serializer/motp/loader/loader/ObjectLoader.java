@@ -6,7 +6,7 @@ import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
 import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoaderCustomClassCache;
 import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoaderObjectSchema;
 import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
-import cn.edu.nwpu.rj416.type.Macaw;
+import cn.edu.nwpu.rj416.type.TypeCaster;
 import cn.edu.nwpu.rj416.type.util.FieldTypeUtil;
 import cn.edu.nwpu.rj416.type.util.MStringObjectMap;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
@@ -65,7 +65,7 @@ public class ObjectLoader {
                 return rst;
             }
 
-            return Macaw.cast(rst, destType);
+            return TypeCaster.cast(rst, destType);
         }
 
         if (destType instanceof ParameterizedType) {

@@ -2,7 +2,7 @@ package cn.edu.nwpu.rj416.type.caster.list;
 
 
 
-import cn.edu.nwpu.rj416.type.Macaw;
+import cn.edu.nwpu.rj416.type.TypeCaster;
 import cn.edu.nwpu.rj416.type.astype.cast.MTypeCastException;
 import cn.edu.nwpu.rj416.type.astype.cast.MTypeCaster;
 
@@ -24,7 +24,7 @@ public class MCasterList2LongArray implements MTypeCaster<List<?>, long[]> {
 		
 		long[] arr = new long[value.size()];
 		for (int i = 0; i < value.size(); i++) {
-			arr[i] = Macaw.cast(value.get(i), long.class);
+			arr[i] = TypeCaster.cast(value.get(i), long.class);
 		}
 		return arr;
 	}
