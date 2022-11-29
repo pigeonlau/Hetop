@@ -50,7 +50,7 @@ public class TestMotpSerializer {
     public static void main(String[] args) throws Exception {
 
         // test();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             test();
         }
 
@@ -179,6 +179,9 @@ public class TestMotpSerializer {
         T loadView = (T) motpSerializer.deserialize(motpBytes, clazzName);
 //        Object deserialize = motpSerializer.deserialize(motpBytes);
 
+//        System.out.println(ori);
+//        System.out.println(FormatUtil.toString(
+//                FormatUtil.format(loadView, 0), "    ", "\r\n"));
         sw.stop();
         double motpDeserializeCost = sw.getMillisecond();
         motpDeSerTime += motpDeserializeCost;
@@ -246,7 +249,7 @@ public class TestMotpSerializer {
         Random random = new Random();
 
         while (obj == null) {
-            int index = random.nextInt(50) + 1;
+            int index = random.nextInt(53) + 1;
             index = 20;
             switch (index) {
                 case 1:

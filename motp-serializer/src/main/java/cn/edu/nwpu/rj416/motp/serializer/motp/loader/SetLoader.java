@@ -1,8 +1,7 @@
-package cn.edu.nwpu.rj416.motp.serializer.motp.loader.loader;
+package cn.edu.nwpu.rj416.motp.serializer.motp.loader;
 
 
 
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
 import cn.edu.nwpu.rj416.type.util.TypeUtil;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
 
@@ -19,7 +18,7 @@ public class SetLoader {
 	/**
 	 * 
 	 * @param buffer
-	 * @param size
+	 * @param
 	 * @param destType 读取结果类型，可能包含以下情况: </br>
 	 * (1) Set&lt;E&gt; / HashSet&lt;E&gt 返回HashSet&lt;E&gt</br>
 	 * (2) List&lt;E&gt / ArrayList&lt;E&gt 返回ArrayList&lt;E&gt</br>

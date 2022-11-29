@@ -1,7 +1,6 @@
 package motp.serializer.test.beans;
 
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpSerializer;
-import cn.edu.nwpu.rj416.motp.serializer.motp.builder.MotpBuilder;
 import cn.edu.nwpu.rj416.type.random.RandomObjectUtil;
 import cn.edu.nwpu.rj416.util.time.Stopwatch;
 import com.alibaba.fastjson.JSONObject;

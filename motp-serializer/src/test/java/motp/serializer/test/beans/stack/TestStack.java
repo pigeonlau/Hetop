@@ -11,21 +11,13 @@ public class TestStack {
         public int key;
         public Node next;
 
-        public Node(int key) {
-            this.key = key;
-        }
+
     }
     private Node head;
 
-    public void initStack(){
-        this.head = new Node(-1);
-    }
 
-    public void push(int key) {
-        Node newNode = new Node(key);
-        newNode.next = head.next;
-        head.next = newNode;
-    }
+
+
 
     public int peek() {
         return head.next.key;

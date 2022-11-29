@@ -1,11 +1,12 @@
 package cn.edu.nwpu.rj416.motp.serializer.motp.loader;
 
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.loader.MotpDataLoader;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.AbstractSchema;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpEnumSchema;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpObjectSchema;
 import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
 import cn.edu.nwpu.rj416.util.exception.runtime.MInvalidValueException;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
 import cn.edu.nwpu.rj416.util.objects.MVLInt;
-import cn.edu.nwpu.rj416.util.time.Stopwatch;
 import cn.edu.nwpu.rj416.util.types.StringUtil;
 
 import java.lang.reflect.Type;
@@ -13,17 +14,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author MilesLiu
- * <p>
- * 2020年3月13日 下午5:03:14
+ * @author pigeonliu
+ * @date 2022/11/29 19:15
  */
 public class MotpLoader {
+
     private byte[] motpBytes;
     private MVLInt schemaLen;
     private MVLInt dataLen;
     private MByteBuffer schemaBuffer;
     private MByteBuffer dataBuffer;
-    private MotpLoaderSchema schemas = new MotpLoaderSchema();
+    private MotpSchema schemas = new MotpSchema();
     private static Map<Class<?>, MotpLoaderEnumClassCache> enumClassCache = new HashMap<>();
     private static Map<Class<?>, MotpLoaderCustomClassCache> customClassCache = new HashMap<>();
 
@@ -101,10 +102,10 @@ public class MotpLoader {
             byte type = schemaBuffer.readByte();
             int len = schemaBuffer.readInt();
 
-            MotpSchema schema = null;
-            if (type == MotpSchema.EnumSchema) {
+            AbstractSchema schema = null;
+            if (type == AbstractSchema.EnumSchema) {
                 schema = this.loadEnumSchema(len);
-            } else if (type == MotpSchema.ObjectSchema) {
+            } else if (type == AbstractSchema.ObjectSchema) {
                 schema = this.loadObjectSchema(len);
             } else {
                 throw new MInvalidValueException(
@@ -122,8 +123,8 @@ public class MotpLoader {
         }
     }
 
-    private MotpLoaderEnumSchema loadEnumSchema(int len) {
-        MotpLoaderEnumSchema schema = new MotpLoaderEnumSchema();
+    private MotpEnumSchema loadEnumSchema(int len) {
+        MotpEnumSchema schema = new MotpEnumSchema();
 
         int pos = schemaBuffer.getOffset();
         int end = pos + len;
@@ -146,8 +147,8 @@ public class MotpLoader {
     }
 
 
-    private MotpLoaderObjectSchema loadObjectSchema(int len) {
-        MotpLoaderObjectSchema schema = new MotpLoaderObjectSchema();
+    private MotpObjectSchema loadObjectSchema(int len) {
+        MotpObjectSchema schema = new MotpObjectSchema();
 
         int pos = schemaBuffer.getOffset();
         int end = pos + len;
@@ -155,7 +156,7 @@ public class MotpLoader {
         MVLInt typeNameLen = schemaBuffer.readMVLInt();
         byte[] typeNameBytes = this.schemaBuffer.readBytes(typeNameLen.castToInteger());
         String typeName = StringUtil.newString(typeNameBytes);
-        schema.setTypeName(typeName);
+        schema.setClassName(typeName);
 
         int size = schemaBuffer.readMVLInt().castToInteger();
         for (int i = 0; i < size; i++) {
@@ -165,7 +166,7 @@ public class MotpLoader {
             byte[] nameBytes = this.schemaBuffer.readBytes(nameLen.castToInteger());
             String name = StringUtil.newString(nameBytes);
 
-            schema.addColumn(number, name);
+            schema.addLoadColumn(number, name);
             pos = this.schemaBuffer.getOffset();
         }
         if (pos > end) {
@@ -175,7 +176,7 @@ public class MotpLoader {
         return schema;
     }
 
-    public MotpLoaderSchema getSchemas() {
+    public MotpSchema getSchemas() {
         return schemas;
     }
 

@@ -11,11 +11,6 @@ public  class TestDrink {
     private double price;
     private String des;
 
-    public TestDrink(String name, double price, String des) {
-        this.name = name;
-        this.price = price;
-        this.des = des;
-    }
 
     public String getName() {
         return name;

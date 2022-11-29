@@ -1,8 +1,7 @@
-package cn.edu.nwpu.rj416.motp.serializer.motp.loader.loader;
+package cn.edu.nwpu.rj416.motp.serializer.motp.loader;
 
 
 
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
 import cn.edu.nwpu.rj416.motp.serializer.motp.util.MTempFileUtil;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
 

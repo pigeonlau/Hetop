@@ -13,13 +13,6 @@ public abstract class TestUser {
     private String phoneNumber;
     private boolean sex;
 
-    public TestUser(String cardId, String name, int age, String phoneNumber, boolean sex) {
-        CardId = cardId;
-        this.name = name;
-        this.age = age;
-        this.phoneNumber = phoneNumber;
-        this.sex = sex;
-    }
 
     public String getCardId() {
         return CardId;

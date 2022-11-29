@@ -15,13 +15,7 @@ public class TestBook {
     private Date publicDate;
     private double price;
 
-    public TestBook(String bookName, int bookId, int author, Date publicDate,double price) {
-        this.bookName = bookName;
-        this.bookId = bookId;
-        this.author = author;
-        this.publicDate = publicDate;
-        this.price=price;
-    }
+
 
     public String getBookName() {
         return bookName;

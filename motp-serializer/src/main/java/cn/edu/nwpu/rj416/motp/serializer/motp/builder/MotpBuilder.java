@@ -2,6 +2,9 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.builder;
 
 
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpType;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.AbstractSchema;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpEnumSchema;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpObjectSchema;
 import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
 import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
 import cn.edu.nwpu.rj416.motp.serializer.motp.util.MTempFileUtil;
@@ -9,10 +12,8 @@ import cn.edu.nwpu.rj416.motp.serializer.motp.util.MotpProcesserMapping;
 import cn.edu.nwpu.rj416.util.astype.AsType;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
 import cn.edu.nwpu.rj416.util.objects.MVLInt;
-import com.alibaba.fastjson.JSONObject;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -22,10 +23,10 @@ import java.util.*;
 public class MotpBuilder {
     private static final byte[] VOID_BYTES = {0, 0};
 
-    private MotpBuilderSchema schema;
+    private MotpSchema schema;
     private MByteBuffer dataBuffer;
 
-    private static Map<Class<?>, MotpSchema> schemaCache = new HashMap<>();
+    private static Map<Class<?>, AbstractSchema> schemaCache = new HashMap<>();
 
     public byte[] getBytes(Object o) {
         if (o == null) {
@@ -33,7 +34,7 @@ public class MotpBuilder {
         }
 
         //初始化
-        this.schema = new MotpBuilderSchema();
+        this.schema = new MotpSchema();
         this.dataBuffer = new MByteBuffer();
 
         //生成序列化数据
@@ -42,18 +43,6 @@ public class MotpBuilder {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        //生成结果数据
-//        MByteBuffer rst = new MByteBuffer();
-//        byte[] schemaBytes = this.schema.getBytes();
-//        byte[] dataBytes = this.dataBuffer.getBytes();
-//
-//
-//        rst.appendMVLInt(schemaBytes.length);
-//        //实现schema与data的数据分离，以便提取到独立的schema和data
-//        rst.appendBytes(schemaBytes);
-//
-//        rst.appendMVLInt(dataBytes.length);
-//        rst.appendBytes(dataBytes);
 
         return combineRes(schema.getByteBuffer(), dataBuffer);
     }
@@ -86,7 +75,7 @@ public class MotpBuilder {
         }
 
         //初始化
-        this.schema = new MotpBuilderSchema();
+        this.schema = new MotpSchema();
         this.dataBuffer = new MByteBuffer();
 
         //生成序列化数据
@@ -114,7 +103,7 @@ public class MotpBuilder {
             return new byte[]{0, 0};
         }
         //初始化
-        this.schema = new MotpBuilderSchema();
+        this.schema = new MotpSchema();
         this.dataBuffer = new MByteBuffer();
 
         //生成序列化数据
@@ -181,7 +170,7 @@ public class MotpBuilder {
             return;
 
         } else if (objectClass.isEnum()) {
-            MotpBuilderEnumSchema enumSchema = this.schema.getEnumSchemaByClass(objectClass);
+            MotpEnumSchema enumSchema = this.schema.getEnumSchemaByClass(objectClass);
             if (enumSchema == null) {
                 @SuppressWarnings("unchecked")
                 Class<Enum<?>> enumClass = (Class<Enum<?>>) objectClass;
@@ -189,8 +178,6 @@ public class MotpBuilder {
             }
 
             Enum<?> enumValue = (Enum<?>) object;
-            MotpBuilderEnumSchemaValue ev = enumSchema.getValueByOrdinal(enumValue.ordinal());
-            ev.setInUse(true);
 
             dataBuffer.appendByte(MotpType.ENUM);
             dataBuffer.appendMVLInt(enumSchema.getNumber());
@@ -433,14 +420,14 @@ public class MotpBuilder {
         }
         Class<?> clazz = o.getClass();
 
-        MotpBuilderObjectSchema objectSchema = this.schema.getObjectSchemaByClass(clazz);
-        MotpBuilderObjectSchema cache = (MotpBuilderObjectSchema) schemaCache.get(clazz);
+        MotpObjectSchema objectSchema = this.schema.getObjectSchemaByClass(clazz);
+        MotpObjectSchema cache = (MotpObjectSchema) schemaCache.get(clazz);
 
         if (cache == null && objectSchema == null) {
             objectSchema = this.schema.appendClass(clazz);
             schemaCache.put(clazz, objectSchema);
         } else if (objectSchema == null) {
-            objectSchema = (MotpBuilderObjectSchema) schema.appendMotpSchema(clazz, cache);
+            objectSchema = (MotpObjectSchema) schema.appendMotpSchema(clazz, cache);
         } else {
             schemaCache.put(clazz, objectSchema);
         }
@@ -452,7 +439,8 @@ public class MotpBuilder {
         // 提前占4位 int  作为 后续 buffer数据的长度
         int offset = dataBuffer.getOffset();
         dataBuffer.appendInt(0);
-        for (Field f : objectSchema.getFields()) {
+        for (Map.Entry<Integer, Field> column : objectSchema.getBuildColumns().entrySet()) {
+            Field f = column.getValue();
             f.setAccessible(true);
             Object fieldValue = f.get(o);
 
@@ -460,14 +448,7 @@ public class MotpBuilder {
                 continue;
             }
 
-            MotpBuilderObjectSchemaColumn column = objectSchema.getColumnByName(f.getName());
-            if (column == null) {
-                continue;
-            }
-
-            column.setInUse(true);
-
-            dataBuffer.appendMVLInt(column.getNumber());
+            dataBuffer.appendMVLInt(column.getKey());
 
             // 泛型类型 field
             Class<?> type = f.getType();
@@ -510,7 +491,7 @@ public class MotpBuilder {
     }
 
 
-    public MotpBuilderSchema getSchema() {
+    public MotpSchema getSchema() {
         return schema;
     }
 

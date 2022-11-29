@@ -10,9 +10,7 @@ import java.util.List;
 public class TestAcademicSystem {
     List<TestCourse> courses;
 
-    public TestAcademicSystem(List<TestCourse> courses) {
-        this.courses = courses;
-    }
+
 
     public List<TestCourse> getCourses() {
         return courses;

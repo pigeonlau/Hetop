@@ -33,22 +33,6 @@ public class MotpLoaderCustomClassCache {
 	public Field getFieldByName(String name) {
 		return this.fieldMap.get(name);
 	}
-	
-	public static class Entry {
-		private Field field;
-		private Type actualType;
-		public Field getField() {
-			return field;
-		}
-		public void setField(Field field) {
-			this.field = field;
-		}
-		public Type getActualType() {
-			return actualType;
-		}
-		public void setActualType(Type actualType) {
-			this.actualType = actualType;
-		}
-	}
+
 	
 }

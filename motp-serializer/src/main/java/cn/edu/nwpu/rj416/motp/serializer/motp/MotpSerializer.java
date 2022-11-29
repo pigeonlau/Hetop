@@ -38,8 +38,7 @@ public class MotpSerializer {
             return ObjectUtil.createObjectByType(type);
         }
         MotpLoader loader = new MotpLoader();
-        Object rst = loader.loadBytes(buffer, type);
-        return rst;
+        return loader.loadBytes(buffer, type);
     }
 
 

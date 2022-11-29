@@ -1,8 +1,6 @@
-package cn.edu.nwpu.rj416.motp.serializer.motp.loader.loader;
-
+package cn.edu.nwpu.rj416.motp.serializer.motp.loader;
 
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpType;
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
 import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
 import cn.edu.nwpu.rj416.motp.serializer.motp.util.MotpProcesserMapping;
 import cn.edu.nwpu.rj416.type.TypeCaster;
@@ -19,7 +17,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 
+/**
+ * @author pigeonliu
+ * @date 2022/11/29 19:30
+ */
 public class MotpDataLoader {
+
     public static Object readData(MotpLoader loader, MByteBuffer dataBuffer) {
         Object value = null;
         byte motpType = dataBuffer.readByte();
@@ -194,5 +197,4 @@ public class MotpDataLoader {
     public static void readDataError(String formatStr, Object... args) {
         throw new MInvalidValueException(formatStr, args);
     }
-
 }

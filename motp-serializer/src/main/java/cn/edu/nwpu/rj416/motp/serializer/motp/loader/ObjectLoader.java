@@ -1,23 +1,19 @@
-package cn.edu.nwpu.rj416.motp.serializer.motp.loader.loader;
+package cn.edu.nwpu.rj416.motp.serializer.motp.loader;
 
 
 import cn.edu.nwpu.rj416.motp.reflectasm.ConstructorAccess;
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoaderCustomClassCache;
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoaderObjectSchema;
-import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
-import cn.edu.nwpu.rj416.type.TypeCaster;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.AbstractSchema;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpObjectSchema;
+
 import cn.edu.nwpu.rj416.type.util.FieldTypeUtil;
 import cn.edu.nwpu.rj416.type.util.MStringObjectMap;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
-import cn.edu.nwpu.rj416.util.types.StringUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class ObjectLoader {
     /**
@@ -43,11 +39,11 @@ public class ObjectLoader {
         // 对象的datalen  使用定长4字节
         int dataLen = buffer.readInt();
 
-        MotpSchema schema = loader.getSchemas().get(schemaNumber);
-        if (!(schema instanceof MotpLoaderObjectSchema)) {
+        AbstractSchema schema = loader.getSchemas().get(schemaNumber);
+        if (!(schema instanceof MotpObjectSchema)) {
             MotpDataLoader.readDataError("错误的SchemaNumber:%d", schemaNumber);
         }
-        MotpLoaderObjectSchema objectSchema = (MotpLoaderObjectSchema) schema;
+        MotpObjectSchema objectSchema = (MotpObjectSchema) schema;
 //        Class<?> oriType = null;
 //        if (StringUtil.isNotEmpty(objectSchema.getTypeName())) {
 //            try {
@@ -121,7 +117,7 @@ public class ObjectLoader {
     public static Object readObjectDataAsMStringObjectMap(
             MotpLoader loader,
             MByteBuffer buffer,
-            MotpLoaderObjectSchema objectSchema,
+            MotpObjectSchema objectSchema,
             int dataLen) {
 
         int pos = buffer.getOffset();
@@ -143,7 +139,7 @@ public class ObjectLoader {
     public static Object readObjectDataAsHashMap(
             MotpLoader loader,
             MByteBuffer buffer,
-            MotpLoaderObjectSchema objectSchema,
+            MotpObjectSchema objectSchema,
             int dataLen) {
 
         int pos = buffer.getOffset();
@@ -165,7 +161,7 @@ public class ObjectLoader {
     public static <T> T readObjectDataAsObject(
             MotpLoader loader,
             MByteBuffer buffer,
-            MotpLoaderObjectSchema objectSchema,
+            MotpObjectSchema objectSchema,
             int dataLen,
             Class<T> clazz) {
 
