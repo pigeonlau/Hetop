@@ -6,7 +6,7 @@ import cn.edu.nwpu.rj416.util.exception.runtime.MInvalidValueException;
 //字节缓存工具类
 public class MByteBuffer { //32位系统，页表一页大小为4kB
     private static final int PAGE_SIZE = 4 << 10;//4的二进制补码左移十位后是4096（页大小）
-    private byte[] buffer = null; //字节码缓存
+    private byte[] buffer; //字节码缓存
     private int offset = 0;
     private int size = 0; //私有属性（字节数组buffer、偏移量offset、大小size）
 
@@ -15,15 +15,20 @@ public class MByteBuffer { //32位系统，页表一页大小为4kB
         this.buffer = new byte[PAGE_SIZE]; //设置自身buffer大小为4kB
     }
 
-    public MByteBuffer(byte[] bytes) { //有参构造函数（根据传入的字节数组构造）
-        int len = bytes.length;
-        int length = PAGE_SIZE;
-        while (length < len) {
-            length *= 2;
-        }
-        buffer = new byte[length];
-        size = len;
-        System.arraycopy(bytes, 0, buffer, 0, len);
+//    public MByteBuffer(byte[] bytes) { //有参构造函数（根据传入的字节数组构造）
+//        int len = bytes.length;
+//        int length = PAGE_SIZE;
+//        while (length < len) {
+//            length *= 2;
+//        }
+//        buffer = new byte[length];
+//        size = len;
+//        System.arraycopy(bytes, 0, buffer, 0, len);
+//    }
+
+    public MByteBuffer(byte[] bytes){
+        buffer = bytes;
+        size = bytes.length;
     }
 
     //在需要时扩展缓存区大小（加一页即4kB）

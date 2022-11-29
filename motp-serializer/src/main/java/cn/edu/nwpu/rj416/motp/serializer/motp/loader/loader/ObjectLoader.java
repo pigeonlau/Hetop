@@ -48,25 +48,26 @@ public class ObjectLoader {
             MotpDataLoader.readDataError("错误的SchemaNumber:%d", schemaNumber);
         }
         MotpLoaderObjectSchema objectSchema = (MotpLoaderObjectSchema) schema;
-        Class<?> oriType = null;
-        if (StringUtil.isNotEmpty(objectSchema.getTypeName())) {
-            try {
-                oriType = Class.forName(objectSchema.getTypeName());
-            } catch (ClassNotFoundException e) {
-
-            }
-        }
-        if (oriType != null) {
-            Object rst = ObjectLoader.readObjectDataAsObject(
-                    loader,
-                    buffer, objectSchema, dataLen, oriType);
-            // 快速判断
-            if (Objects.equals(oriType, destType)) {
-                return rst;
-            }
-
-            return TypeCaster.cast(rst, destType);
-        }
+//        Class<?> oriType = null;
+//        if (StringUtil.isNotEmpty(objectSchema.getTypeName())) {
+//            try {
+//                oriType = Class.forName(objectSchema.getTypeName());
+//            } catch (ClassNotFoundException e) {
+//
+//            }
+//        }
+//        if (oriType != null) {
+//            Object rst = ObjectLoader.readObjectDataAsObject(
+//                    loader,
+//                    buffer, objectSchema, dataLen, oriType);
+//
+//            // 快速判断
+//            if (Objects.equals(oriType, destType)) {
+//                return rst;
+//            }
+//
+//            return TypeCaster.cast(rst, destType);
+//        }
 
         if (destType instanceof ParameterizedType) {
             /*

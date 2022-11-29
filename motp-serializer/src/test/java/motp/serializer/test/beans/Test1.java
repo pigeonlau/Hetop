@@ -3,6 +3,7 @@ package motp.serializer.test.beans;
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpSerializer;
 import cn.edu.nwpu.rj416.motp.serializer.motp.builder.MotpBuilder;
 import cn.edu.nwpu.rj416.type.random.RandomObjectUtil;
+import cn.edu.nwpu.rj416.util.time.Stopwatch;
 import com.alibaba.fastjson.JSONObject;
 import motp.serializer.test.beans.sc.TestSelectCourse;
 
@@ -46,18 +47,28 @@ public class Test1 {
         MotpSerializer motpSerializer = MotpSerializer.getInstance();
 
         TestView testView = RandomObjectUtil.randomObject(TestView.class);
-        byte[] serialize = motpSerializer.serialize(testView);
-        System.out.println(serialize.length);
+        byte[] bytes = motpSerializer.serialize(testView);
 
-        byte[] bytes = JSONObject.toJSONBytes(testView);
-        System.out.println(bytes.length);
+        double sum = 0;
+        for (int i = 0; i < 10; i++) {
+            System.out.println(i);
+            Stopwatch sw = new Stopwatch();
+            sw.start();
+            motpSerializer.deserialize(bytes, TestView.class);
+            sw.stop();
+            System.out.println("deserialize " + sw.getMicrosecond());
+            System.out.println();
+            sum+=sw.getMicrosecond();
+        }
+
+        System.out.println(sum);
 
 
-        Object obj = RandomObjectUtil.randomObject(TestSelectCourse.class);
-        System.out.println(obj);
-
-        obj = RandomObjectUtil.randomObject(TestBean.class);
-        System.out.println(obj);
+//        Object obj = RandomObjectUtil.randomObject(TestSelectCourse.class);
+//        System.out.println(obj);
+//
+//        obj = RandomObjectUtil.randomObject(TestBean.class);
+//        System.out.println(obj);
 
 
     }

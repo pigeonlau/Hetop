@@ -50,7 +50,7 @@ public class TestMotpSerializer {
     public static void main(String[] args) throws Exception {
 
         // test();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             test();
         }
 
@@ -172,37 +172,13 @@ public class TestMotpSerializer {
         double xStreamSerCost = sw.getMillisecond();
         long xStreamSize = xStreamBytes.length;
         xStreamSeTime += xStreamSerCost;
-        //hessian
-//        sw.start();
-//        ByteArrayOutputStream os = new ByteArrayOutputStream();
-//        Hessian2Output output = new Hessian2Output(os);
-//
-//        output.writeObject(view);
-//        output.close();
-//        byte[] hessianBytes=os.toByteArray();
-//        sw.stop();
-//        double hessianSerCost=sw.getMillisecond();
-//        long hessianSize=hessianBytes.length;
 
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".motp"), motpBytes);
-//
-//
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".json"), jsonBytes);
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + "_fastjson.json"), fastJsonBytes);
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".proto"), protostuff);
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".gson"), gsonBytes);
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".XStream"), xStreamBytes);
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".Hessian"), hessianBytes);
-
-        //		FileUtil.dumpToFile(new File("D:\\test_for_seri\\data\\" + testName + ".motp"), motpBytes);
-//		FileUtil.dumpToFile(new File("D:\\test_for_seri\\data\\" + testName + ".json"), jsonBytes);
-//		FileUtil.dumpToFile(new File("D:\\test_for_seri\\data\\" + testName + "_fastjson.json"), fastJsonBytes); FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".motp"), motpBytes);
-//		FileUtil.dumpToFile(new File("D:\\test_for_seri\\data\\" + testName + ".proto"), protostuff);
 
         //motp deserialize
         sw.start();
-//        T loadView = (T) motpSerializer.deserialize(motpBytes, clazzName);
-        Object deserialize = motpSerializer.deserialize(motpBytes);
+        T loadView = (T) motpSerializer.deserialize(motpBytes, clazzName);
+//        Object deserialize = motpSerializer.deserialize(motpBytes);
+
         sw.stop();
         double motpDeserializeCost = sw.getMillisecond();
         motpDeSerTime += motpDeserializeCost;
@@ -225,6 +201,7 @@ public class TestMotpSerializer {
 
         //protoStuff deSerializer
         sw.start();
+        schema = RuntimeSchema.getSchema(clazzName);
         T viewParsed = schema.newMessage();
         ProtostuffIOUtil.mergeFrom(protostuff, viewParsed, schema);
         sw.stop();
@@ -245,25 +222,6 @@ public class TestMotpSerializer {
         double xStreamDerCost = sw.getMillisecond();
         xStreamDeSerTime += xStreamDerCost;
 
-//        String rst = FormatUtil.toString(
-//                FormatUtil.format(loadView, 0), "    ", "\r\n");
-
-//            System.err.println("FAIL");
-//            FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".motp"), motpBytes);
-//            FileUtil.dumpToFile(
-//                    new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + "_ori.txt"),
-//                    ori.getBytes(Charset.forName("utf-8")));
-//            FileUtil.dumpToFile(
-//                    new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + "_rst.txt"),
-//                    rst.getBytes(Charset.forName("utf-8")));
-
-//			FileUtil.dumpToFile(new File("D:\\test_for_seri\\" + testName + ".motp"), motpBytes);
-//			FileUtil.dumpToFile(
-//					new File("D:\\test_for_seri\\" + testName + "_ori.txt"), 
-//					ori.getBytes(Charset.forName("utf-8")));
-//			FileUtil.dumpToFile(
-//					new File("D:\\test_for_seri\\" + testName + "_rst.txt"), 
-//					rst.getBytes(Charset.forName("utf-8")));
 
         //System.out.println(view.getClass());
         System.out.println(String.format(
@@ -276,16 +234,6 @@ public class TestMotpSerializer {
                 "PASS: [Size       ]motp %s byte, json %s byte, fastJson %s byte, protoStuff %s byte,Gson %s byte,XStream %s byte",
                 String.valueOf(motpSize), String.valueOf(jsonSize), String.valueOf(fastJsonSize), String.valueOf(protoStuffSize), String.valueOf(GsonSize), String.valueOf(xStreamSize)));
 
-////
-//            String serOut = String.valueOf(motpTimeCost) + " " + String.valueOf(jsonTimeCost) + " " + String.valueOf(fastJsonTimeCost) + " " + String.valueOf(protoStuffSerCost) + " " + String.valueOf(gsonSerCost) + " " + String.valueOf(xStreamSerCost);
-//            String deSerOut = String.valueOf(motpDeserializeCost) + " " + String.valueOf(jsonDeserializeCost) + " " + String.valueOf(fastJsonDeserCost) + " " + String.valueOf(protoStuffDeSerCost) + "" + String.valueOf(gsonDeSerCost) + " " + String.valueOf(xStreamDerCost);
-//
-//            FileWriter serWriter = new FileWriter(new File("E:\\Users\\zlei\\Desktop\\motp\\test\\serTimeCost.txt"), true);
-//            serWriter.write(serOut + "\n");
-//            FileWriter deSerWriter = new FileWriter(new File("E:\\Users\\zlei\\Desktop\\motp\\test\\deSerTimeCost.txt"), true);
-//            deSerWriter.write(deSerOut + "\n");
-//            serWriter.close();
-//            deSerWriter.close();
 
 
     }
@@ -299,6 +247,7 @@ public class TestMotpSerializer {
 
         while (obj == null) {
             int index = random.nextInt(50) + 1;
+            index = 20;
             switch (index) {
                 case 1:
                     obj = RandomObjectUtil.randomObject(String.class);
@@ -446,8 +395,8 @@ public class TestMotpSerializer {
                     obj = RandomObjectUtil.randomObject(Set.class);
                     break;
                 case 49:
-                    obj = RandomObjectUtil.randomObject(Map.class);
-//                    obj = RandomObjectUtil.randomHashMap(String.class, Integer.class, 100);
+//                    obj = RandomObjectUtil.randomObject(Map.class);
+                    obj = RandomObjectUtil.randomHashMap(String.class, Integer.class, 100);
                     break;
                 case 50:
                     obj = RandomObjectUtil.randomArrayList(String.class, 100);
@@ -457,6 +406,9 @@ public class TestMotpSerializer {
                     break;
                 case 52:
                     obj = RandomObjectUtil.randomArrayList(TestBean.class, 1000);
+                    break;
+                case 53:
+                    obj = RandomObjectUtil.randomObject(Test1.class);
                     break;
                 default:
                     obj = RandomObjectUtil.randomObject(TestView.class);
