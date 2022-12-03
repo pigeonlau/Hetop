@@ -3,7 +3,7 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.loader;
 
 import cn.edu.nwpu.rj416.motp.reflectasm.ConstructorAccess;
 import cn.edu.nwpu.rj416.motp.serializer.motp.schema.AbstractSchema;
-import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpObjectSchema;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.ObjectSchema;
 
 import cn.edu.nwpu.rj416.type.util.FieldTypeUtil;
 import cn.edu.nwpu.rj416.type.util.MStringObjectMap;
@@ -39,11 +39,11 @@ public class ObjectLoader {
         // 对象的datalen  使用定长4字节
         int dataLen = buffer.readInt();
 
-        AbstractSchema schema = loader.getSchemas().get(schemaNumber);
-        if (!(schema instanceof MotpObjectSchema)) {
+        AbstractSchema schema = loader.getSchema().get(schemaNumber);
+        if (!(schema instanceof ObjectSchema)) {
             MotpDataLoader.readDataError("错误的SchemaNumber:%d", schemaNumber);
         }
-        MotpObjectSchema objectSchema = (MotpObjectSchema) schema;
+        ObjectSchema objectSchema = (ObjectSchema) schema;
 //        Class<?> oriType = null;
 //        if (StringUtil.isNotEmpty(objectSchema.getTypeName())) {
 //            try {
@@ -117,7 +117,7 @@ public class ObjectLoader {
     public static Object readObjectDataAsMStringObjectMap(
             MotpLoader loader,
             MByteBuffer buffer,
-            MotpObjectSchema objectSchema,
+            ObjectSchema objectSchema,
             int dataLen) {
 
         int pos = buffer.getOffset();
@@ -139,7 +139,7 @@ public class ObjectLoader {
     public static Object readObjectDataAsHashMap(
             MotpLoader loader,
             MByteBuffer buffer,
-            MotpObjectSchema objectSchema,
+            ObjectSchema objectSchema,
             int dataLen) {
 
         int pos = buffer.getOffset();
@@ -161,46 +161,45 @@ public class ObjectLoader {
     public static <T> T readObjectDataAsObject(
             MotpLoader loader,
             MByteBuffer buffer,
-            MotpObjectSchema objectSchema,
+            ObjectSchema objectSchema,
             int dataLen,
             Class<T> clazz) {
 
         int pos = buffer.getOffset();
         int end = pos + dataLen;
 
-        //T obj = ObjectUtil.createObjectByClass(clazz);
+        //T obj = ObjectUtil.createObjectByClass(clazz);-
         T obj = ConstructorAccess.get(clazz).newInstance();
 
 
-        MotpLoaderCustomClassCache ccc = loader.getCustomClassCache().get(clazz);
-        if (ccc == null) {
-            ccc = new MotpLoaderCustomClassCache();
-            ccc.buildClass(clazz);
-            loader.getCustomClassCache().put(clazz, ccc);
-        }
-
-        while (buffer.getOffset() < end) {
-            int fieldNumber = buffer.readMVLInt().castToInteger();
-            String name = objectSchema.getColumnByNumber(fieldNumber);
-            Object fieldValue = null;
-            Field field = ccc.getFieldByName(name);
-            if (field == null) {
-                fieldValue = MotpDataLoader.readData(loader, buffer);
-            } else {
-                Type fType = FieldTypeUtil.getFieldType(clazz, field);
-                fieldValue = MotpDataLoader.readData(loader, buffer, fType);
-                try {
-//					field.setAccessible(true);
-                    field.set(obj, fieldValue);//根据属性名赋值
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-
-                }
-            }
-
-        }
-        if (buffer.getOffset() > end) {
-            MotpDataLoader.readDataError("读取OBJECT时长度越界");
-        }
+//        MotpLoaderCustomClassCache ccc = loader.getCustomClassCache().get(clazz);
+//        if (ccc == null) {
+//            ccc = new MotpLoaderCustomClassCache();
+//            ccc.buildClass(clazz);
+//            loader.getCustomClassCache().put(clazz, ccc);
+//        }
+//
+//        while (buffer.getOffset() < end) {
+//            int fieldNumber = buffer.readMVLInt().castToInteger();
+//            String name = objectSchema.getColumnByNumber(fieldNumber);
+//            Field field = ccc.getFieldByName(name);
+//            if (field == null) {
+//                MotpDataLoader.readData(loader, buffer);
+//            } else {
+//                Type fType = FieldTypeUtil.getFieldType(clazz, field);
+//                Object fieldValue = MotpDataLoader.readData(loader, buffer, fType);
+//                try {
+////					field.setAccessible(true);
+//                    field.set(obj, fieldValue);//根据属性名赋值
+//                } catch (IllegalArgumentException | IllegalAccessException e) {
+//
+//                }
+//            }
+//
+//        }
+//        if (buffer.getOffset() > end) {
+//            MotpDataLoader.readDataError("读取OBJECT时长度越界");
+//        }
         return obj;
     }
 }

@@ -3,8 +3,8 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.builder;
 
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpType;
 import cn.edu.nwpu.rj416.motp.serializer.motp.schema.AbstractSchema;
-import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpEnumSchema;
-import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpObjectSchema;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.EnumSchema;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.ObjectSchema;
 import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
 import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
 import cn.edu.nwpu.rj416.motp.serializer.motp.util.MTempFileUtil;
@@ -28,20 +28,27 @@ public class MotpBuilder {
 
     private static Map<Class<?>, AbstractSchema> schemaCache = new HashMap<>();
 
+    private static Map<Class<?>, MotpSchema> motpSchemaCache = new HashMap<>();
+
     public byte[] getBytes(Object o) {
         if (o == null) {
             return VOID_BYTES;
         }
 
-        //初始化
-        this.schema = new MotpSchema();
+        Class<?> clazz = o.getClass();
+        this.schema = motpSchemaCache.get(clazz);
+        if (schema == null) {
+            this.schema = new MotpSchema();
+        }
         this.dataBuffer = new MByteBuffer();
 
-        //生成序列化数据
         try {
             this.appendData(this.dataBuffer, o);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        if (isNormalObject(clazz)) {
+            motpSchemaCache.put(clazz, schema);
         }
 
         return combineRes(schema.getByteBuffer(), dataBuffer);
@@ -73,17 +80,22 @@ public class MotpBuilder {
         if (o == null) {
             return null;
         }
-
-        //初始化
-        this.schema = new MotpSchema();
+        Class<?> clazz = o.getClass();
+        this.schema = motpSchemaCache.get(clazz);
+        if (schema == null) {
+            this.schema = new MotpSchema();
+        }
         this.dataBuffer = new MByteBuffer();
 
-        //生成序列化数据
         try {
             this.appendData(this.dataBuffer, o);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if (isNormalObject(clazz)) {
+            motpSchemaCache.put(clazz, schema);
+        }
+
         MVLInt schemaByteBufferLength = new MVLInt(schema.getByteBuffer().getSize());
         MVLInt dataBufferLength = new MVLInt(dataBuffer.getSize());
 
@@ -102,15 +114,20 @@ public class MotpBuilder {
         if (o == null) {
             return new byte[]{0, 0};
         }
-        //初始化
-        this.schema = new MotpSchema();
+        Class<?> clazz = o.getClass();
+        this.schema = motpSchemaCache.get(clazz);
+        if (schema == null) {
+            this.schema = new MotpSchema();
+        }
         this.dataBuffer = new MByteBuffer();
 
-        //生成序列化数据
         try {
             this.appendData(this.dataBuffer, o);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        if (isNormalObject(clazz)) {
+            motpSchemaCache.put(clazz, schema);
         }
 
         MVLInt dataBufferLength = new MVLInt(dataBuffer.getSize());
@@ -119,6 +136,44 @@ public class MotpBuilder {
         System.arraycopy(dataBuffer.getRawBuffer(), 0, bytes, dataBufferLength.getLen(), dataBuffer.getSize());
 
         return bytes;
+    }
+
+
+    /**
+     * 获取 schema
+     * @param o
+     * @param schema 引用 返回值
+     * @return schema  and  byte[]
+     */
+    public byte[] getDataBytes(Object o, MotpSchema schema) {
+
+        if (schema == null || o == null) {
+            return new byte[]{0, 0};
+        }
+
+        Class<?> clazz = o.getClass();
+
+        MotpSchema cache = motpSchemaCache.get(clazz);
+        if (cache != null) {
+            this.schema = cache;
+            schema.setBuildSchema(cache.getBuildSchema());
+        } else {
+            this.schema = schema;
+        }
+        this.dataBuffer = new MByteBuffer();
+
+        try {
+            this.appendData(this.dataBuffer, o);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (isNormalObject(clazz)) {
+            motpSchemaCache.put(clazz, this.schema);
+        }
+
+
+        return dataBuffer.getBytes();
     }
 
 
@@ -170,7 +225,7 @@ public class MotpBuilder {
             return;
 
         } else if (objectClass.isEnum()) {
-            MotpEnumSchema enumSchema = this.schema.getEnumSchemaByClass(objectClass);
+            EnumSchema enumSchema = this.schema.getEnumSchemaByClass(objectClass);
             if (enumSchema == null) {
                 @SuppressWarnings("unchecked")
                 Class<Enum<?>> enumClass = (Class<Enum<?>>) objectClass;
@@ -413,21 +468,21 @@ public class MotpBuilder {
         }
     }
 
-    private void buildNormalObject(MByteBuffer dataBuffer, Object o) throws Exception, IllegalAccessException {
+    private void buildNormalObject(MByteBuffer dataBuffer, Object o) throws Exception {
         if (o == null) {
             dataBuffer.appendByte(MotpType.VOID);
             return;
         }
         Class<?> clazz = o.getClass();
 
-        MotpObjectSchema objectSchema = this.schema.getObjectSchemaByClass(clazz);
-        MotpObjectSchema cache = (MotpObjectSchema) schemaCache.get(clazz);
+        ObjectSchema objectSchema = this.schema.getObjectSchemaByClass(clazz);
+        ObjectSchema cache = (ObjectSchema) schemaCache.get(clazz);
 
         if (cache == null && objectSchema == null) {
             objectSchema = this.schema.appendClass(clazz);
             schemaCache.put(clazz, objectSchema);
         } else if (objectSchema == null) {
-            objectSchema = (MotpObjectSchema) schema.appendMotpSchema(clazz, cache);
+            objectSchema = (ObjectSchema) schema.appendMotpSchema(clazz, cache);
         } else {
             schemaCache.put(clazz, objectSchema);
         }

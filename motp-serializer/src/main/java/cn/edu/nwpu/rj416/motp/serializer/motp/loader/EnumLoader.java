@@ -2,7 +2,7 @@ package cn.edu.nwpu.rj416.motp.serializer.motp.loader;
 
 
 import cn.edu.nwpu.rj416.motp.serializer.motp.schema.AbstractSchema;
-import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpEnumSchema;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.EnumSchema;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
 import cn.edu.nwpu.rj416.util.types.StringUtil;
 
@@ -76,14 +76,14 @@ public class EnumLoader {
 		/*
 		 * 获取MOTP中枚举类型对应的名称 
 		 */
-		AbstractSchema enumSchema = loader.getSchemas().get(schemaNumber);
+		AbstractSchema enumSchema = loader.getSchema().get(schemaNumber);
 		if (enumSchema == null) {
 			return null;
 		}
-		if (!(enumSchema instanceof MotpEnumSchema)) {
+		if (!(enumSchema instanceof EnumSchema)) {
 			return null;
 		}
-		String name = ((MotpEnumSchema)enumSchema).getValueByOrdinal(ordinal);
+		String name = ((EnumSchema)enumSchema).getValueByOrdinal(ordinal);
 		if (StringUtil.isEmpty(name)) {
 			return null;
 		}

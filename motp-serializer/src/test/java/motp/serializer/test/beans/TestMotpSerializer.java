@@ -3,6 +3,7 @@ package motp.serializer.test.beans;
 
 import cn.edu.nwpu.rj416.motp.serializer.json.MotpJsonSerializer;
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpSerializer;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
 import cn.edu.nwpu.rj416.type.FormatUtil;
 import cn.edu.nwpu.rj416.type.random.MRandom;
 import cn.edu.nwpu.rj416.type.random.RandomObjectUtil;
@@ -50,7 +51,7 @@ public class TestMotpSerializer {
     public static void main(String[] args) throws Exception {
 
         // test();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             test();
         }
 
@@ -106,7 +107,9 @@ public class TestMotpSerializer {
         totalCase++;
         //motp serializer
         sw.start();
-        byte[] motpBytes = motpSerializer.serialize(view);
+//        byte[] motpBytes = motpSerializer.serialize(view);
+        MotpSchema motpSchema = new MotpSchema();
+        byte[] motpBytes = motpSerializer.serialize(view, motpSchema);
         sw.stop();
         double motpTimeCost = sw.getMillisecond();
         long motpSize = motpBytes.length;
@@ -176,7 +179,10 @@ public class TestMotpSerializer {
 
         //motp deserialize
         sw.start();
-        T loadView = (T) motpSerializer.deserialize(motpBytes, clazzName);
+
+        @SuppressWarnings("unchecked")
+        T loadView = (T) motpSerializer.deserialize(motpSchema, motpBytes, clazzName);
+//        T loadView = (T) motpSerializer.deserialize(motpBytes, clazzName);
 //        Object deserialize = motpSerializer.deserialize(motpBytes);
 
 //        System.out.println(ori);
@@ -238,7 +244,6 @@ public class TestMotpSerializer {
                 String.valueOf(motpSize), String.valueOf(jsonSize), String.valueOf(fastJsonSize), String.valueOf(protoStuffSize), String.valueOf(GsonSize), String.valueOf(xStreamSize)));
 
 
-
     }
 
     /*
@@ -249,8 +254,8 @@ public class TestMotpSerializer {
         Random random = new Random();
 
         while (obj == null) {
-            int index = random.nextInt(53) + 1;
-            index = 20;
+            int index = random.nextInt(16) + 2;
+            index = 52;
             switch (index) {
                 case 1:
                     obj = RandomObjectUtil.randomObject(String.class);

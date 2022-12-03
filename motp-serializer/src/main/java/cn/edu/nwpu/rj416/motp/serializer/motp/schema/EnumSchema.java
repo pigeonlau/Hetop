@@ -11,13 +11,13 @@ import java.util.Map;
  * @author pigeonliu
  * @date 2022/11/29 17:18
  */
-public class MotpEnumSchema extends AbstractSchema {
+public class EnumSchema extends AbstractSchema {
 
     // ordinary - name
     private Map<Integer, String> values = new HashMap<>();
 
 
-    public MotpEnumSchema() {
+    public EnumSchema() {
         super();
         this.setType(AbstractSchema.EnumSchema);
     }

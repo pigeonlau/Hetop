@@ -7,12 +7,13 @@ import cn.edu.nwpu.rj416.util.types.StringUtil;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author pigeonliu
  * @date 2022/11/29 16:24
  */
-public class MotpObjectSchema extends AbstractSchema {
+public class ObjectSchema extends AbstractSchema {
 
     private String className;
 
@@ -21,7 +22,7 @@ public class MotpObjectSchema extends AbstractSchema {
     private Map<Integer, String> loadColumns = new HashMap<>();
 
 
-    public MotpObjectSchema() {
+    public ObjectSchema() {
         super();
         this.setType(ObjectSchema);
     }
@@ -74,6 +75,9 @@ public class MotpObjectSchema extends AbstractSchema {
     }
 
     public String getColumnByNumber(int number) {
+        if (loadColumns == null || loadColumns.isEmpty()) {
+            loadColumns = buildColumns.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getName()));
+        }
         return loadColumns.get(number);
     }
 

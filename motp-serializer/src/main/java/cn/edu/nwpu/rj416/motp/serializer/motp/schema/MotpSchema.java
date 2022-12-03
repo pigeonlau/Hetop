@@ -32,8 +32,8 @@ public class MotpSchema {
         }
     }
 
-    public MotpObjectSchema appendClass(Class<?> clazz) {
-        MotpObjectSchema schema = new MotpObjectSchema();
+    public ObjectSchema appendClass(Class<?> clazz) {
+        ObjectSchema schema = new ObjectSchema();
         schema.setClassName(clazz.getName());
 
         FieldAccess access = FieldAccess.get(clazz);
@@ -49,8 +49,8 @@ public class MotpSchema {
     }
 
 
-    public MotpEnumSchema appendEnum(Class<Enum<?>> clazz) {
-        MotpEnumSchema schema = new MotpEnumSchema();
+    public EnumSchema appendEnum(Class<Enum<?>> clazz) {
+        EnumSchema schema = new EnumSchema();
 
         Enum<?>[] enumValues = clazz.getEnumConstants();
         for (Enum<?> o : enumValues) {
@@ -74,7 +74,7 @@ public class MotpSchema {
         return this.buildSchema.get(clazz);
     }
 
-    public MotpEnumSchema getEnumSchemaByClass(Class<?> clazz) {
+    public EnumSchema getEnumSchemaByClass(Class<?> clazz) {
         AbstractSchema schema = this.buildSchema.get(clazz);
         if (schema == null) {
             return null;
@@ -82,10 +82,10 @@ public class MotpSchema {
         if (schema.getType() != AbstractSchema.EnumSchema) {
             return null;
         }
-        return (MotpEnumSchema) schema;
+        return (EnumSchema) schema;
     }
 
-    public MotpObjectSchema getObjectSchemaByClass(Class<?> clazz) {
+    public ObjectSchema getObjectSchemaByClass(Class<?> clazz) {
         AbstractSchema schema = this.buildSchema.get(clazz);
         if (schema == null) {
             return null;
@@ -93,7 +93,7 @@ public class MotpSchema {
         if (schema.getType() != AbstractSchema.ObjectSchema) {
             return null;
         }
-        return (MotpObjectSchema) schema;
+        return (ObjectSchema) schema;
     }
 
 
@@ -124,5 +124,21 @@ public class MotpSchema {
             loadSchema = buildSchema.values().stream().collect(Collectors.toMap(AbstractSchema::getNumber, e -> e));
         }
         return loadSchema.get(number);
+    }
+
+    public Map<Class<?>, AbstractSchema> getBuildSchema() {
+        return buildSchema;
+    }
+
+    public void setBuildSchema(Map<Class<?>, AbstractSchema> buildSchema) {
+        this.buildSchema = buildSchema;
+    }
+
+    public Map<Integer, AbstractSchema> getLoadSchema() {
+        return loadSchema;
+    }
+
+    public void setLoadSchema(Map<Integer, AbstractSchema> loadSchema) {
+        this.loadSchema = loadSchema;
     }
 }
