@@ -17,10 +17,10 @@ public class MotpSchema {
     private int numberIndex = 1;
 
     // 序列化
-    private Map<Class<?>, AbstractSchema> buildSchema = new HashMap<>();
+    private Map<Class<?>, AbstractSchema> buildSchema = new HashMap<>(16);
 
     // 反序列化
-    private Map<Integer, AbstractSchema> loadSchema = new HashMap<>();
+    private Map<Integer, AbstractSchema> loadSchema = new HashMap<>(16);
 
     public AbstractSchema append(Class<?> clazz) {
         if (clazz.isEnum()) {
@@ -44,7 +44,10 @@ public class MotpSchema {
             schema.addBuildColumn(noIndex++, f);
         }
         schema.setNumber(this.numberIndex++);
+        this.loadSchema.put(schema.getNumber(), schema);
+
         this.buildSchema.put(clazz, schema);
+
         return schema;
     }
 
@@ -58,13 +61,18 @@ public class MotpSchema {
         }
 
         schema.setNumber(this.numberIndex++);//设置schemaid
+        this.loadSchema.put(schema.getNumber(), schema);
+
         this.buildSchema.put(clazz, schema);
+
         return schema;
     }
 
     public AbstractSchema appendMotpSchema(Class<?> clazz, AbstractSchema schema) {
 
         schema.setNumber(numberIndex++);
+        this.loadSchema.put(schema.getNumber(), schema);
+
         buildSchema.put(clazz, schema);
 
         return schema;
@@ -120,9 +128,9 @@ public class MotpSchema {
     }
 
     public AbstractSchema get(int number) {
-        if (loadSchema == null || loadSchema.isEmpty()) {
-            loadSchema = buildSchema.values().stream().collect(Collectors.toMap(AbstractSchema::getNumber, e -> e));
-        }
+//        if (loadSchema == null || loadSchema.isEmpty()) {
+//            loadSchema = buildSchema.values().stream().collect(Collectors.toMap(AbstractSchema::getNumber, e -> e));
+//        }
         return loadSchema.get(number);
     }
 

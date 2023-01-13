@@ -7,6 +7,7 @@ import cn.edu.nwpu.rj416.motp.serializer.motp.schema.ObjectSchema;
 
 import cn.edu.nwpu.rj416.type.util.FieldTypeUtil;
 import cn.edu.nwpu.rj416.type.util.MStringObjectMap;
+import cn.edu.nwpu.rj416.type.util.ObjectUtil;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
 
 import java.lang.reflect.Field;
@@ -16,6 +17,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ObjectLoader {
+
+    // 构造函数 cache
+    private static final Map<Class<?>, ConstructorAccess<?>> ConstructorAccessCache = new HashMap<>(16);
+
+
     /**
      * 从MByteBuffer中读取一个Object的值
      *
@@ -34,16 +40,20 @@ public class ObjectLoader {
             MByteBuffer buffer,
             Type destType) {
 
+
         int schemaNumber = buffer.readMVLInt().castToInteger();
 
         // 对象的datalen  使用定长4字节
         int dataLen = buffer.readInt();
 
         AbstractSchema schema = loader.getSchema().get(schemaNumber);
+
+
         if (!(schema instanceof ObjectSchema)) {
             MotpDataLoader.readDataError("错误的SchemaNumber:%d", schemaNumber);
         }
         ObjectSchema objectSchema = (ObjectSchema) schema;
+
 //        Class<?> oriType = null;
 //        if (StringUtil.isNotEmpty(objectSchema.getTypeName())) {
 //            try {
@@ -65,25 +75,7 @@ public class ObjectLoader {
 //            return TypeCaster.cast(rst, destType);
 //        }
 
-        if (destType instanceof ParameterizedType) {
-            /*
-             * 包含:
-             * Map<?, ?>
-             * HashMap<?, ?>
-             */
-            ParameterizedType pt = (ParameterizedType) destType;
-            if (pt.getRawType() != Map.class && pt.getRawType() != HashMap.class) {
-                buffer.skip(dataLen);
-                return null;
-            }
-            Type[] typeArgs = pt.getActualTypeArguments();
-            if (typeArgs.length != 2) {
-                buffer.skip(dataLen);
-                return null;
-            }
-
-            return ObjectLoader.readObjectDataAsHashMap(loader, buffer, objectSchema, dataLen);
-        } else if (destType instanceof Class) {
+        if (destType instanceof Class) {
             /*
              * 包含：
              * MStringObjectMap
@@ -108,6 +100,24 @@ public class ObjectLoader {
                     loader,
                     buffer, objectSchema, dataLen, clazz);
 
+        } else if (destType instanceof ParameterizedType) {
+            /*
+             * 包含:
+             * Map<?, ?>
+             * HashMap<?, ?>
+             */
+            ParameterizedType pt = (ParameterizedType) destType;
+            if (pt.getRawType() != Map.class && pt.getRawType() != HashMap.class) {
+                buffer.skip(dataLen);
+                return null;
+            }
+            Type[] typeArgs = pt.getActualTypeArguments();
+            if (typeArgs.length != 2) {
+                buffer.skip(dataLen);
+                return null;
+            }
+
+            return ObjectLoader.readObjectDataAsHashMap(loader, buffer, objectSchema, dataLen);
         } else {
             buffer.skip(dataLen);
             return null;
@@ -168,38 +178,44 @@ public class ObjectLoader {
         int pos = buffer.getOffset();
         int end = pos + dataLen;
 
-        //T obj = ObjectUtil.createObjectByClass(clazz);-
-        T obj = ConstructorAccess.get(clazz).newInstance();
+//        T obj = ObjectUtil.createObjectByClass(clazz);
+
+        if (!ConstructorAccessCache.containsKey(clazz)) {
+            ConstructorAccessCache.put(clazz, ConstructorAccess.get(clazz));
+        }
+        T obj = (T) ConstructorAccessCache.get(clazz).newInstance();
 
 
-//        MotpLoaderCustomClassCache ccc = loader.getCustomClassCache().get(clazz);
-//        if (ccc == null) {
-//            ccc = new MotpLoaderCustomClassCache();
-//            ccc.buildClass(clazz);
-//            loader.getCustomClassCache().put(clazz, ccc);
-//        }
-//
-//        while (buffer.getOffset() < end) {
-//            int fieldNumber = buffer.readMVLInt().castToInteger();
-//            String name = objectSchema.getColumnByNumber(fieldNumber);
-//            Field field = ccc.getFieldByName(name);
-//            if (field == null) {
-//                MotpDataLoader.readData(loader, buffer);
-//            } else {
-//                Type fType = FieldTypeUtil.getFieldType(clazz, field);
-//                Object fieldValue = MotpDataLoader.readData(loader, buffer, fType);
-//                try {
-////					field.setAccessible(true);
-//                    field.set(obj, fieldValue);//根据属性名赋值
-//                } catch (IllegalArgumentException | IllegalAccessException e) {
-//
-//                }
-//            }
-//
-//        }
-//        if (buffer.getOffset() > end) {
-//            MotpDataLoader.readDataError("读取OBJECT时长度越界");
-//        }
+        MotpLoaderCustomClassCache ccc = loader.getCustomClassCache().get(clazz);
+        if (ccc == null) {
+            ccc = new MotpLoaderCustomClassCache();
+            ccc.buildClass(clazz);
+            loader.getCustomClassCache().put(clazz, ccc);
+        }
+
+        while (buffer.getOffset() < end) {
+            int fieldNumber = buffer.readMVLInt().castToInteger();
+            String name = objectSchema.getColumnByNumber(fieldNumber);
+            Field field = ccc.getFieldByName(name);
+            if (field == null) {
+                MotpDataLoader.readData(loader, buffer);
+            } else {
+                Type fType = FieldTypeUtil.getFieldType(clazz, field);
+                Object fieldValue = MotpDataLoader.readData(loader, buffer, fType);
+                try {
+//					field.setAccessible(true);
+                    field.set(obj, fieldValue);//根据属性名赋值
+                } catch (IllegalArgumentException | IllegalAccessException e) {
+
+                }
+            }
+
+        }
+        if (buffer.getOffset() > end) {
+            MotpDataLoader.readDataError("读取OBJECT时长度越界");
+        }
         return obj;
+
+//        return null;
     }
 }

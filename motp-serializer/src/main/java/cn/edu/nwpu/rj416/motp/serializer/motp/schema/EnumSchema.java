@@ -14,7 +14,7 @@ import java.util.Map;
 public class EnumSchema extends AbstractSchema {
 
     // ordinary - name
-    private Map<Integer, String> values = new HashMap<>();
+    private Map<Integer, String> values = new HashMap<>(16);
 
 
     public EnumSchema() {

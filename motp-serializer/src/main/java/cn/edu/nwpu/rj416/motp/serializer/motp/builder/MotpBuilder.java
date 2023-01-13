@@ -141,6 +141,7 @@ public class MotpBuilder {
 
     /**
      * 获取 schema
+     *
      * @param o
      * @param schema 引用 返回值
      * @return schema  and  byte[]
@@ -157,6 +158,7 @@ public class MotpBuilder {
         if (cache != null) {
             this.schema = cache;
             schema.setBuildSchema(cache.getBuildSchema());
+            schema.setLoadSchema(cache.getLoadSchema());
         } else {
             this.schema = schema;
         }

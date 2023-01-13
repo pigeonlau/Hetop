@@ -17,9 +17,9 @@ public class ObjectSchema extends AbstractSchema {
 
     private String className;
 
-    private Map<Integer, Field> buildColumns = new HashMap<>();
+    private Map<Integer, Field> buildColumns = new HashMap<>(16);
 
-    private Map<Integer, String> loadColumns = new HashMap<>();
+    private Map<Integer, String> loadColumns = new HashMap<>(16);
 
 
     public ObjectSchema() {

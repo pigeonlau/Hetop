@@ -51,7 +51,7 @@ public class TestMotpSerializer {
     public static void main(String[] args) throws Exception {
 
         // test();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             test();
         }
 
@@ -248,6 +248,8 @@ public class TestMotpSerializer {
 
     /*
      *修改测试策略，生成随机类对象进行序列化/反序列化，不再添加自定义类型到TestView中
+     * TEST BEAN 20
+     * test1 53
      */
     private static Object getRandomObject() {
         Object obj = null;
@@ -255,7 +257,7 @@ public class TestMotpSerializer {
 
         while (obj == null) {
             int index = random.nextInt(16) + 2;
-            index = 52;
+            index = 500;
             switch (index) {
                 case 1:
                     obj = RandomObjectUtil.randomObject(String.class);
