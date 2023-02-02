@@ -2,7 +2,7 @@ package cn.edu.nwpu.rj416.type.caster.object;
 
 
 
-import cn.edu.nwpu.rj416.type.Macaw;
+import cn.edu.nwpu.rj416.type.TypeCaster;
 import cn.edu.nwpu.rj416.type.astype.cast.MTypeCastException;
 import cn.edu.nwpu.rj416.type.astype.cast.MTypeCaster;
 import cn.edu.nwpu.rj416.type.util.ObjectUtil;
@@ -37,7 +37,7 @@ public class MCasterObject2Object implements MTypeCaster<Object, Object> {
 		for (Field f : fields){
 			try {
 				Object value = ClassUtil.getValue(source, f.getName()); //根据字段名从源对象中获取对应的字段值
-				Object destvalue = Macaw.cast(value, f.getType());
+				Object destvalue = TypeCaster.cast(value, f.getType());
 				f.setAccessible(true);
 				f.set(dest, destvalue);
 			} catch (Exception e) {

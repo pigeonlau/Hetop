@@ -4,7 +4,7 @@
 package cn.edu.nwpu.rj416.type.util;
 
 
-import cn.edu.nwpu.rj416.type.Macaw;
+import cn.edu.nwpu.rj416.type.TypeCaster;
 import cn.edu.nwpu.rj416.util.reflect.ClassUtil;
 import cn.edu.nwpu.rj416.util.types.CollectionUtil;
 import cn.edu.nwpu.rj416.util.types.StringUtil;
@@ -124,7 +124,7 @@ public final class ObjectUtil {
 					continue;
 				}
 				if (value.getClass() != f.getType()) {
-					value = Macaw.cast(value, f.getGenericType());
+					value = TypeCaster.cast(value, f.getGenericType());
 				}
 				ClassUtil.setValue(object, f, value);
 			} catch (Exception e) {
@@ -237,7 +237,7 @@ public final class ObjectUtil {
 		for (Field f : fields){
 			try {
 				Object value = ClassUtil.getValue(source, f.getName());
-				Object destvalue = Macaw.cast(value, f.getType());
+				Object destvalue = TypeCaster.cast(value, f.getType());
 				f.setAccessible(true);
 				f.set(dest, destvalue);
 			} catch (Exception e) {
@@ -258,7 +258,7 @@ public final class ObjectUtil {
 					continue;
 				}
 				Object value = ClassUtil.getValue(source, f.getName());
-				Object destvalue = Macaw.cast(value, f.getType());
+				Object destvalue = TypeCaster.cast(value, f.getType());
 				f.setAccessible(true);
 				f.set(dest, destvalue);
 			} catch (Exception e) {

@@ -8,9 +8,7 @@ import motp.serializer.test.beans.shop.*;
 import motp.serializer.test.beans.stack.TestStack;
 import motp.serializer.test.beans.train.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class TestView {
@@ -476,6 +474,4 @@ public class TestView {
     public void setBean1(TestBean bean1) {
         this.bean1 = bean1;
     }
-
-
 }

@@ -10,21 +10,14 @@ import java.util.List;
  * @create: 2022-01-17 21:13
  **/
 public class TestCourse {
-    String courseId;
-    String courseName;
-    String courseDes;
-    TestTeacher teacher;
-    List<TestCourse> preCourse;
-    List<TestBook> books;
+    private String courseId;
+    private String courseName;
+    private String courseDes;
+    private TestTeacher teacher;
+//    private List<TestCourse> preCourse;
+    private List<TestBook> books;
 
-    public TestCourse(String courseId, String courseName, String courseDes, TestTeacher teacher) {
-        this.courseId = courseId;
-        this.courseName = courseName;
-        this.courseDes = courseDes;
-        this.teacher = teacher;
-        this.preCourse = new ArrayList<>();
-        this.books = new ArrayList<>();
-    }
+
 
     public String getCourseId() {
         return courseId;
@@ -58,13 +51,7 @@ public class TestCourse {
         this.teacher = teacher;
     }
 
-    public List<TestCourse> getPreCourse() {
-        return preCourse;
-    }
 
-    public void setPreCourse(List<TestCourse> preCourse) {
-        this.preCourse = preCourse;
-    }
 
     public List<TestBook> getBooks() {
         return books;

@@ -9,11 +9,6 @@ package motp.serializer.test.beans.sc;
 public class TestTeacher extends TestUser {
     private String teacherId;
 
-    public TestTeacher(String teacherId, String cardId, int age, String name, String phoneNumber,boolean sex) {
-        super(cardId, name, age, phoneNumber,sex);
-        this.teacherId = teacherId;
-
-    }
 
     public String getTeacherId() {
         return teacherId;

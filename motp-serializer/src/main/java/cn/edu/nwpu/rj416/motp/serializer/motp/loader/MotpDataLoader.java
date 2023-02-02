@@ -1,13 +1,9 @@
-package cn.edu.nwpu.rj416.motp.serializer.motp.loader.loader;
-
-
-
+package cn.edu.nwpu.rj416.motp.serializer.motp.loader;
 
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpType;
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
 import cn.edu.nwpu.rj416.motp.serializer.motp.tp.MotpTypeProcesser;
 import cn.edu.nwpu.rj416.motp.serializer.motp.util.MotpProcesserMapping;
-import cn.edu.nwpu.rj416.type.Macaw;
+import cn.edu.nwpu.rj416.type.TypeCaster;
 import cn.edu.nwpu.rj416.type.astype.cast.MTypeCastException;
 import cn.edu.nwpu.rj416.type.util.MStringObjectMap;
 import cn.edu.nwpu.rj416.util.exception.runtime.MInvalidValueException;
@@ -19,8 +15,14 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 
+/**
+ * @author pigeonliu
+ * @date 2022/11/29 19:30
+ */
 public class MotpDataLoader {
+
     public static Object readData(MotpLoader loader, MByteBuffer dataBuffer) {
         Object value = null;
         byte motpType = dataBuffer.readByte();
@@ -84,6 +86,10 @@ public class MotpDataLoader {
         fastProcesser = MotpProcesserMapping.getProcesser(motpType);
         if (fastProcesser != null) {
             value = fastProcesser.read(dataBuffer);
+
+            if (Objects.equals(value.getClass(), destType)) {
+                return value;
+            }
         } else {
             switch (motpType) {
                 case MotpType.ENUM:
@@ -111,7 +117,7 @@ public class MotpDataLoader {
 
 
         try {
-            return Macaw.cast(value, destType);
+            return TypeCaster.cast(value, destType);
         } catch (MTypeCastException e) {
             return null;
         }
@@ -191,5 +197,4 @@ public class MotpDataLoader {
     public static void readDataError(String formatStr, Object... args) {
         throw new MInvalidValueException(formatStr, args);
     }
-
 }

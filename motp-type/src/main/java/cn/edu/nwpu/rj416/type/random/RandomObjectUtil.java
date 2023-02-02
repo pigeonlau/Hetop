@@ -189,7 +189,7 @@ public class RandomObjectUtil {
 		} else if (type instanceof ParameterizedType) {
 			ParameterizedType paramType = (ParameterizedType)type;
 			Type rawType = paramType.getRawType();
-			int len = r.nextInt(5);
+			int len = r.nextInt(10);
 			if (rawType == List.class || rawType == ArrayList.class) {
 				Type[] tps = paramType.getActualTypeArguments();
 				if (tps.length == 1) {

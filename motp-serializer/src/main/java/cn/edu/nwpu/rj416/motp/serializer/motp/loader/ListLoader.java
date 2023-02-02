@@ -1,8 +1,8 @@
-package cn.edu.nwpu.rj416.motp.serializer.motp.loader.loader;
+package cn.edu.nwpu.rj416.motp.serializer.motp.loader;
 
 
 
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
+
 import cn.edu.nwpu.rj416.type.util.TypeUtil;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
 
@@ -154,7 +154,7 @@ public class ListLoader {
 			MotpLoader loader,
 			MByteBuffer buffer, 
 			int size) {
-		ArrayList<Object> list = new ArrayList<>();
+		ArrayList<Object> list = new ArrayList<>(size);
 
 		for (int i = 0; i < size; i++) {
 			Object ele = MotpDataLoader.readData(loader, buffer);
@@ -170,8 +170,7 @@ public class ListLoader {
 			Class<?> componentType) {
 
 		Object arr = Array.newInstance(componentType, size);
-//        ConstructorAccess constructorAccess=ConstructorAccess.get(Array.class);
-//        constructorAccess.newInstance()
+
 		for (int i = 0; i < size; i++) {
 			Object ele = MotpDataLoader.readData(loader, buffer, componentType);
 			Array.set(arr, i, ele);

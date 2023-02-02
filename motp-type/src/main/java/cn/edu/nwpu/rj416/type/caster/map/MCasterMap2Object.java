@@ -2,7 +2,7 @@ package cn.edu.nwpu.rj416.type.caster.map;
 
 
 
-import cn.edu.nwpu.rj416.type.Macaw;
+import cn.edu.nwpu.rj416.type.TypeCaster;
 import cn.edu.nwpu.rj416.type.astype.cast.MTypeCastException;
 import cn.edu.nwpu.rj416.type.astype.cast.MTypeCaster;
 import cn.edu.nwpu.rj416.type.util.ObjectUtil;
@@ -31,7 +31,7 @@ public class MCasterMap2Object implements MTypeCaster<Map<?, ?>, Object> {
 		for (Field f : fields){
 			try {
 				Object v = value.get(f.getName());//根据字段名（键）从Map中获取对应的字段值
-				Object destvalue = Macaw.cast(v, f.getType());//把存放的对象值转换成字段对应类型
+				Object destvalue = TypeCaster.cast(v, f.getType());//把存放的对象值转换成字段对应类型
 				f.setAccessible(true);
 				f.set(dest, destvalue);//将dest中匹配的字段值设置成图中存放的值
 			} catch (Exception e) {

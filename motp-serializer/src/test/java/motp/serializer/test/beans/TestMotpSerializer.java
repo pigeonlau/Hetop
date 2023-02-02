@@ -3,6 +3,7 @@ package motp.serializer.test.beans;
 
 import cn.edu.nwpu.rj416.motp.serializer.json.MotpJsonSerializer;
 import cn.edu.nwpu.rj416.motp.serializer.motp.MotpSerializer;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
 import cn.edu.nwpu.rj416.type.FormatUtil;
 import cn.edu.nwpu.rj416.type.random.MRandom;
 import cn.edu.nwpu.rj416.type.random.RandomObjectUtil;
@@ -50,7 +51,7 @@ public class TestMotpSerializer {
     public static void main(String[] args) throws Exception {
 
         // test();
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 1000; i++) {
             test();
         }
 
@@ -73,15 +74,190 @@ public class TestMotpSerializer {
         //write
     }
 
+
+    public static Object getTest1() {
+        return RandomObjectUtil.randomObject(Test1.class);
+    }
+
+    private static <T> void test() throws IOException {
+
+        String testName = Long.toString(System.currentTimeMillis());
+        T view = (T) getRandomObject();
+//        view = (T) getTest1();
+        Class<T> clazzName = (Class<T>) view.getClass();
+        while (clazzName.isInterface() || Modifier.isAbstract(clazzName.getModifiers())) {
+//            if (clazzName.isArray()) {
+//                break;
+//            }
+            view = (T) getRandomObject();
+            clazzName = (Class<T>) view.getClass();
+        }
+
+        System.out.println((totalCase) + " " + clazzName);
+        //FormatUtil.print(view);
+
+        String ori = FormatUtil.toString(
+                FormatUtil.format(view, 0), "    ", "\r\n");
+
+        MotpSerializer motpSerializer = MotpSerializer.getInstance();
+
+        MotpJsonSerializer jsonSerializer = MotpJsonSerializer.getInstance();
+
+        Stopwatch sw = new Stopwatch();
+        totalCase++;
+        //motp serializer
+        sw.start();
+//        byte[] motpBytes = motpSerializer.serialize(view);
+        MotpSchema motpSchema = new MotpSchema();
+        byte[] motpBytes = motpSerializer.serialize(view, motpSchema);
+        sw.stop();
+        double motpTimeCost = sw.getMillisecond();
+        long motpSize = motpBytes.length;
+        motpSeTime += motpTimeCost;
+//        send(motpBytes);
+//        System.err.println("发送成功");
+
+        //json serializer
+        sw.start();
+        byte[] jsonBytes = jsonSerializer.serialize(view);
+        sw.stop();
+        double jsonTimeCost = sw.getMillisecond();
+        long jsonSize = jsonBytes.length;
+        jsonSeTime += jsonTimeCost;
+
+        /*
+         * 在pom.xml中添加protostuff和fastjson的dependencies
+         * 再在此处使用fastJson和protoStuff对随机创建出的view进行序列化和反序列化，
+         * 计算其时间，并将其写入到本地txt文档中
+         *  */
+        //fastJson Serializer
+        sw.start();
+        byte[] fastJsonBytes = JSON.toJSONBytes(view);
+        sw.stop();
+        double fastJsonTimeCost = sw.getMillisecond();
+        long fastJsonSize = fastJsonBytes.length;
+        fastJsonSeTime += fastJsonTimeCost;
+
+        //protoStuff Serializer
+        sw.start();
+        Schema<T> schema = RuntimeSchema.getSchema(clazzName);
+        @SuppressWarnings("unchecked")
+        LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
+        //Class<T> clazz = (Class<T>) view.getClass();
+        byte[] protostuff = ProtostuffIOUtil.toByteArray(view, schema, buffer);
+        buffer.clear();
+
+//        LinkedBuffer buffer = LinkedBuffer.allocate(512);
+//        Schema<TestView> schema = RuntimeSchema.getSchema(TestView.class);
+//        //Schema<className> schema = RuntimeSchema.getSchema(TestView.class);
+//        byte[] protostuff = ProtostuffIOUtil.toByteArray(view, schema, buffer);
+//        buffer.clear();
+        sw.stop();
+        double protoStuffSerCost = sw.getMillisecond();
+        long protoStuffSize = protostuff.length;
+        protoStuffSeTime += protoStuffSerCost;
+
+        //Gson serializer
+        sw.start();
+        Gson gson = new Gson();
+        byte[] gsonBytes = gson.toJson(view).getBytes();
+        //System.out.println(gsonBytes);
+        sw.stop();
+        double gsonSerCost = sw.getMillisecond();
+        long GsonSize = gsonBytes.length;
+        gsonSeTime += gsonSerCost;
+
+        //XStream
+        sw.start();
+        XStream xStream = new XStream();
+        byte[] xStreamBytes = xStream.toXML(view).getBytes();
+        sw.stop();
+        double xStreamSerCost = sw.getMillisecond();
+        long xStreamSize = xStreamBytes.length;
+        xStreamSeTime += xStreamSerCost;
+
+
+        //motp deserialize
+        sw.start();
+
+        @SuppressWarnings("unchecked")
+        T loadView = (T) motpSerializer.deserialize(motpSchema, motpBytes, clazzName);
+//        T loadView = (T) motpSerializer.deserialize(motpBytes, clazzName);
+//        Object deserialize = motpSerializer.deserialize(motpBytes);
+
+//        System.out.println(ori);
+//        System.out.println(FormatUtil.toString(
+//                FormatUtil.format(loadView, 0), "    ", "\r\n"));
+        sw.stop();
+        double motpDeserializeCost = sw.getMillisecond();
+        motpDeSerTime += motpDeserializeCost;
+
+
+        //jackson deserialize
+        sw.start();
+        jsonSerializer.deserialize(jsonBytes, clazzName);
+        sw.stop();
+        double jsonDeserializeCost = sw.getMillisecond();
+        jsonDeSerTime += jsonDeserializeCost;
+
+        //add
+        //fastJson deSerializer
+        sw.start();
+        JSON.parseObject(fastJsonBytes, clazzName);
+        sw.stop();
+        double fastJsonDeserCost = sw.getMillisecond();
+        fastJsonDeSerTime += fastJsonDeserCost;
+
+        //protoStuff deSerializer
+        sw.start();
+        schema = RuntimeSchema.getSchema(clazzName);
+        T viewParsed = schema.newMessage();
+        ProtostuffIOUtil.mergeFrom(protostuff, viewParsed, schema);
+        sw.stop();
+        double protoStuffDeSerCost = sw.getMillisecond();
+        protoStuffDeSerTime += protoStuffDeSerCost;
+
+        //Gson deSerializer
+        sw.start();
+        gson.fromJson(new String(gsonBytes), clazzName);
+        sw.stop();
+        double gsonDeSerCost = sw.getMillisecond();
+        gsonDeSerTime += gsonDeSerCost;
+
+        //XStream deSerializer
+        sw.start();
+        xStream.fromXML(new String(xStreamBytes));
+        sw.stop();
+        double xStreamDerCost = sw.getMillisecond();
+        xStreamDeSerTime += xStreamDerCost;
+
+
+        //System.out.println(view.getClass());
+        System.out.println(String.format(
+                "PASS: [Serialize  ]motp %f ms, json %f ms, fastJson %f ms, protoStuff %f ms,Gson %f ms ,XStream %f ms",
+                motpTimeCost, jsonTimeCost, fastJsonTimeCost, protoStuffSerCost, gsonSerCost, xStreamSerCost));
+        System.out.println(String.format(
+                "PASS: [Deserialize]motp %f ms, json %f ms, fastJson %f ms, protoStuff %f ms,Gson %f ms,XStream %f ms",
+                motpDeserializeCost, jsonDeserializeCost, fastJsonDeserCost, protoStuffDeSerCost, gsonDeSerCost, xStreamDerCost));
+        System.out.println(String.format(
+                "PASS: [Size       ]motp %s byte, json %s byte, fastJson %s byte, protoStuff %s byte,Gson %s byte,XStream %s byte",
+                String.valueOf(motpSize), String.valueOf(jsonSize), String.valueOf(fastJsonSize), String.valueOf(protoStuffSize), String.valueOf(GsonSize), String.valueOf(xStreamSize)));
+
+
+    }
+
     /*
      *修改测试策略，生成随机类对象进行序列化/反序列化，不再添加自定义类型到TestView中
+     * TEST BEAN 20
+     * test1 53
      */
     private static Object getRandomObject() {
         Object obj = null;
         Random random = new Random();
 
         while (obj == null) {
-            int index = random.nextInt(50);
+            int index = random.nextInt(16) + 2;
+            index = 500;
             switch (index) {
                 case 1:
                     obj = RandomObjectUtil.randomObject(String.class);
@@ -222,232 +398,33 @@ public class TestMotpSerializer {
                     obj = RandomObjectUtil.randomObject(TestStack.class);
                     break;
                 case 47:
-                    obj = RandomObjectUtil.randomObject(List.class);
+//                    obj = RandomObjectUtil.randomObject(List.class);
+                    obj = RandomObjectUtil.randomArrayList(Integer.class, 100);
                     break;
                 case 48:
                     obj = RandomObjectUtil.randomObject(Set.class);
                     break;
                 case 49:
-                    obj = RandomObjectUtil.randomObject(Map.class);
+//                    obj = RandomObjectUtil.randomObject(Map.class);
+                    obj = RandomObjectUtil.randomHashMap(String.class, Integer.class, 100);
+                    break;
+                case 50:
+                    obj = RandomObjectUtil.randomArrayList(String.class, 100);
+                    break;
+                case 51:
+                    obj = RandomObjectUtil.randomArrayList(TestView.class, 100);
+                    break;
+                case 52:
+                    obj = RandomObjectUtil.randomArrayList(TestBean.class, 1000);
+                    break;
+                case 53:
+                    obj = RandomObjectUtil.randomObject(Test1.class);
                     break;
                 default:
                     obj = RandomObjectUtil.randomObject(TestView.class);
             }
         }
         return obj;
-    }
-
-    public static Object getTest1() {
-        return RandomObjectUtil.randomObject(Test1.class);
-    }
-
-    private static <T> void test() throws IOException {
-
-        String testName = Long.toString(System.currentTimeMillis());
-        T view = (T) getRandomObject();
-//        T view = (T) getTest1();
-        Class<T> clazzName = (Class<T>) view.getClass();
-        while (clazzName.isInterface() || Modifier.isAbstract(clazzName.getModifiers())) {
-            view = (T) getRandomObject();
-            clazzName = (Class<T>) view.getClass();
-        }
-
-        System.out.println((totalCase) + " " + clazzName);
-        //FormatUtil.print(view);
-
-        String ori = FormatUtil.toString(
-                FormatUtil.format(view, 0), "    ", "\r\n");
-
-        MotpSerializer motpSerializer = MotpSerializer.getInstance();
-
-        MotpJsonSerializer jsonSerializer = MotpJsonSerializer.getInstance();
-
-        Stopwatch sw = new Stopwatch();
-        totalCase++;
-        //motp serializer
-        sw.start();
-        byte[] motpBytes = motpSerializer.serialize(view);
-        sw.stop();
-        double motpTimeCost = sw.getMillisecond();
-        long motpSize = motpBytes.length;
-        motpSeTime += motpTimeCost;
-//        send(motpBytes);
-//        System.err.println("发送成功");
-
-        //json serializer
-        sw.start();
-        byte[] jsonBytes = jsonSerializer.serialize(view);
-        sw.stop();
-        double jsonTimeCost = sw.getMillisecond();
-        long jsonSize = jsonBytes.length;
-        jsonSeTime += jsonTimeCost;
-
-        /*
-         * 在pom.xml中添加protostuff和fastjson的dependencies
-         * 再在此处使用fastJson和protoStuff对随机创建出的view进行序列化和反序列化，
-         * 计算其时间，并将其写入到本地txt文档中
-         *  */
-        //fastJson Serializer
-        sw.start();
-        byte[] fastJsonBytes = JSON.toJSONBytes(view);
-        sw.stop();
-        double fastJsonTimeCost = sw.getMillisecond();
-        long fastJsonSize = fastJsonBytes.length;
-        fastJsonSeTime += fastJsonTimeCost;
-
-        //protoStuff Serializer
-        sw.start();
-        Schema<T> schema = RuntimeSchema.getSchema(clazzName);
-        @SuppressWarnings("unchecked")
-        LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
-        //Class<T> clazz = (Class<T>) view.getClass();
-        byte[] protostuff = ProtostuffIOUtil.toByteArray(view, schema, buffer);
-        buffer.clear();
-
-//        LinkedBuffer buffer = LinkedBuffer.allocate(512);
-//        Schema<TestView> schema = RuntimeSchema.getSchema(TestView.class);
-//        //Schema<className> schema = RuntimeSchema.getSchema(TestView.class);
-//        byte[] protostuff = ProtostuffIOUtil.toByteArray(view, schema, buffer);
-//        buffer.clear();
-        sw.stop();
-        double protoStuffSerCost = sw.getMillisecond();
-        long protoStuffSize = protostuff.length;
-        protoStuffSeTime += protoStuffSerCost;
-
-        //Gson serializer
-        sw.start();
-        Gson gson = new Gson();
-        byte[] gsonBytes = gson.toJson(view).getBytes();
-        //System.out.println(gsonBytes);
-        sw.stop();
-        double gsonSerCost = sw.getMillisecond();
-        long GsonSize = gsonBytes.length;
-        gsonSeTime += gsonSerCost;
-
-        //XStream
-        sw.start();
-        XStream xStream = new XStream();
-        byte[] xStreamBytes = xStream.toXML(view).getBytes();
-        sw.stop();
-        double xStreamSerCost = sw.getMillisecond();
-        long xStreamSize = xStreamBytes.length;
-        xStreamSeTime += xStreamSerCost;
-        //hessian
-//        sw.start();
-//        ByteArrayOutputStream os = new ByteArrayOutputStream();
-//        Hessian2Output output = new Hessian2Output(os);
-//
-//        output.writeObject(view);
-//        output.close();
-//        byte[] hessianBytes=os.toByteArray();
-//        sw.stop();
-//        double hessianSerCost=sw.getMillisecond();
-//        long hessianSize=hessianBytes.length;
-
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".motp"), motpBytes);
-//
-//
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".json"), jsonBytes);
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + "_fastjson.json"), fastJsonBytes);
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".proto"), protostuff);
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".gson"), gsonBytes);
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".XStream"), xStreamBytes);
-//        FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".Hessian"), hessianBytes);
-
-        //		FileUtil.dumpToFile(new File("D:\\test_for_seri\\data\\" + testName + ".motp"), motpBytes);
-//		FileUtil.dumpToFile(new File("D:\\test_for_seri\\data\\" + testName + ".json"), jsonBytes);
-//		FileUtil.dumpToFile(new File("D:\\test_for_seri\\data\\" + testName + "_fastjson.json"), fastJsonBytes); FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".motp"), motpBytes);
-//		FileUtil.dumpToFile(new File("D:\\test_for_seri\\data\\" + testName + ".proto"), protostuff);
-
-        //motp deserialize
-        sw.start();
-        T loadView = (T) motpSerializer.deserialize(motpBytes, clazzName);
-        sw.stop();
-        double motpDeserializeCost = sw.getMillisecond();
-        motpDeSerTime += motpDeserializeCost;
-
-
-        //jackson deserialize
-        sw.start();
-        jsonSerializer.deserialize(jsonBytes, clazzName);
-        sw.stop();
-        double jsonDeserializeCost = sw.getMillisecond();
-        jsonDeSerTime += jsonDeserializeCost;
-
-        //add
-        //fastJson deSerializer
-        sw.start();
-        JSON.parseObject(fastJsonBytes, clazzName);
-        sw.stop();
-        double fastJsonDeserCost = sw.getMillisecond();
-        fastJsonDeSerTime += fastJsonDeserCost;
-
-        //protoStuff deSerializer
-        sw.start();
-        T viewParsed = schema.newMessage();
-        ProtostuffIOUtil.mergeFrom(protostuff, viewParsed, schema);
-        sw.stop();
-        double protoStuffDeSerCost = sw.getMillisecond();
-        protoStuffDeSerTime += protoStuffDeSerCost;
-
-        //Gson deSerializer
-        sw.start();
-        gson.fromJson(new String(gsonBytes), clazzName);
-        sw.stop();
-        double gsonDeSerCost = sw.getMillisecond();
-        gsonDeSerTime += gsonDeSerCost;
-
-        //XStream deSerializer
-        sw.start();
-        xStream.fromXML(new String(xStreamBytes));
-        sw.stop();
-        double xStreamDerCost = sw.getMillisecond();
-        xStreamDeSerTime += xStreamDerCost;
-
-        String rst = FormatUtil.toString(
-                FormatUtil.format(loadView, 0), "    ", "\r\n");
-
-        if (StringUtil.notEqual(ori, rst)) {
-            System.err.println("FAIL");
-            FileUtil.dumpToFile(new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + ".motp"), motpBytes);
-            FileUtil.dumpToFile(
-                    new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + "_ori.txt"),
-                    ori.getBytes(Charset.forName("utf-8")));
-            FileUtil.dumpToFile(
-                    new File("E:\\Users\\zlei\\Desktop\\motp\\" + testName + "_rst.txt"),
-                    rst.getBytes(Charset.forName("utf-8")));
-
-//			FileUtil.dumpToFile(new File("D:\\test_for_seri\\" + testName + ".motp"), motpBytes);
-//			FileUtil.dumpToFile(
-//					new File("D:\\test_for_seri\\" + testName + "_ori.txt"), 
-//					ori.getBytes(Charset.forName("utf-8")));
-//			FileUtil.dumpToFile(
-//					new File("D:\\test_for_seri\\" + testName + "_rst.txt"), 
-//					rst.getBytes(Charset.forName("utf-8")));
-        } else {
-            //System.out.println(view.getClass());
-            System.out.println(String.format(
-                    "PASS: [Serialize  ]motp %f ms, json %f ms, fastJson %f ms, protoStuff %f ms,Gson %f ms ,XStream %f ms",
-                    motpTimeCost, jsonTimeCost, fastJsonTimeCost, protoStuffSerCost, gsonSerCost, xStreamSerCost));
-            System.out.println(String.format(
-                    "PASS: [Deserialize]motp %f ms, json %f ms, fastJson %f ms, protoStuff %f ms,Gson %f ms,XStream %f ms",
-                    motpDeserializeCost, jsonDeserializeCost, fastJsonDeserCost, protoStuffDeSerCost, gsonDeSerCost, xStreamDerCost));
-            System.out.println(String.format(
-                    "PASS: [Size       ]motp %s byte, json %s byte, fastJson %s byte, protoStuff %s byte,Gson %s byte,XStream %s byte",
-                    String.valueOf(motpSize), String.valueOf(jsonSize), String.valueOf(fastJsonSize), String.valueOf(protoStuffSize), String.valueOf(GsonSize), String.valueOf(xStreamSize)));
-
-////
-//            String serOut = String.valueOf(motpTimeCost) + " " + String.valueOf(jsonTimeCost) + " " + String.valueOf(fastJsonTimeCost) + " " + String.valueOf(protoStuffSerCost) + " " + String.valueOf(gsonSerCost) + " " + String.valueOf(xStreamSerCost);
-//            String deSerOut = String.valueOf(motpDeserializeCost) + " " + String.valueOf(jsonDeserializeCost) + " " + String.valueOf(fastJsonDeserCost) + " " + String.valueOf(protoStuffDeSerCost) + "" + String.valueOf(gsonDeSerCost) + " " + String.valueOf(xStreamDerCost);
-//
-//            FileWriter serWriter = new FileWriter(new File("E:\\Users\\zlei\\Desktop\\motp\\test\\serTimeCost.txt"), true);
-//            serWriter.write(serOut + "\n");
-//            FileWriter deSerWriter = new FileWriter(new File("E:\\Users\\zlei\\Desktop\\motp\\test\\deSerTimeCost.txt"), true);
-//            deSerWriter.write(deSerOut + "\n");
-//            serWriter.close();
-//            deSerWriter.close();
-
-        }
     }
 
 

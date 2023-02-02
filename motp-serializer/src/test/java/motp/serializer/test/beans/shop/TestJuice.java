@@ -8,10 +8,7 @@ package motp.serializer.test.beans.shop;
  **/
 public class TestJuice extends TestDrink {
     private TestTaste tem;
-    public TestJuice(String name, double price, String des, TestTaste tem) {
-        super(name, price, des);
-        this.tem=tem;
-    }
+
 
     public TestTaste getTem() {
         return tem;

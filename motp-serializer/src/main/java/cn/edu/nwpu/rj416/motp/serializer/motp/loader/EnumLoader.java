@@ -1,10 +1,8 @@
-package cn.edu.nwpu.rj416.motp.serializer.motp.loader.loader;
+package cn.edu.nwpu.rj416.motp.serializer.motp.loader;
 
 
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoader;
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoaderEnumClassCache;
-import cn.edu.nwpu.rj416.motp.serializer.motp.loader.MotpLoaderEnumSchema;
-import cn.edu.nwpu.rj416.motp.serializer.motp.schema.MotpSchema;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.AbstractSchema;
+import cn.edu.nwpu.rj416.motp.serializer.motp.schema.EnumSchema;
 import cn.edu.nwpu.rj416.util.objects.MByteBuffer;
 import cn.edu.nwpu.rj416.util.types.StringUtil;
 
@@ -78,14 +76,14 @@ public class EnumLoader {
 		/*
 		 * 获取MOTP中枚举类型对应的名称 
 		 */
-		MotpSchema enumSchema = loader.getSchemas().get(schemaNumber);
+		AbstractSchema enumSchema = loader.getSchema().get(schemaNumber);
 		if (enumSchema == null) {
 			return null;
 		}
-		if (!(enumSchema instanceof MotpLoaderEnumSchema)) {
+		if (!(enumSchema instanceof EnumSchema)) {
 			return null;
 		}
-		String name = ((MotpLoaderEnumSchema)enumSchema).getValueByOrdinal(ordinal);
+		String name = ((EnumSchema)enumSchema).getValueByOrdinal(ordinal);
 		if (StringUtil.isEmpty(name)) {
 			return null;
 		}
